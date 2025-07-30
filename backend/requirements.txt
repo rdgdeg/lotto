@@ -1,0 +1,13 @@
+fastapi==0.116.1
+uvicorn[standard]==0.27.1
+sqlalchemy==2.0.41
+pandas==2.3.1
+numpy==2.2.6
+python-multipart==0.0.20
+python-dotenv==1.1.1
+psycopg2-binary==2.9.10
+requests==2.32.4
+pydantic==2.11.7
+celery==5.5.3
+redis==6.2.0
+supabase==2.12.3 

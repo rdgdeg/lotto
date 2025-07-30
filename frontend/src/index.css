@@ -1,0 +1,589 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== SYSTÈME DE COULEURS COHÉRENT ===== */
+:root {
+  /* Couleurs primaires - Palette harmonieuse */
+  --primary-blue: #2563eb;
+  --primary-blue-light: #3b82f6;
+  --primary-blue-dark: #1d4ed8;
+  --primary-blue-50: #eff6ff;
+  --primary-blue-100: #dbeafe;
+  --primary-blue-200: #bfdbfe;
+  --primary-blue-300: #93c5fd;
+  --primary-blue-400: #60a5fa;
+  --primary-blue-500: #3b82f6;
+  --primary-blue-600: #2563eb;
+  --primary-blue-700: #1d4ed8;
+  --primary-blue-800: #1e40af;
+  --primary-blue-900: #1e3a8a;
+
+  /* Couleurs secondaires - Violets */
+  --primary-purple: #7c3aed;
+  --primary-purple-light: #8b5cf6;
+  --primary-purple-dark: #6d28d9;
+  --primary-purple-50: #faf5ff;
+  --primary-purple-100: #f3e8ff;
+  --primary-purple-200: #e9d5ff;
+  --primary-purple-300: #d8b4fe;
+  --primary-purple-400: #c084fc;
+  --primary-purple-500: #a855f7;
+  --primary-purple-600: #9333ea;
+  --primary-purple-700: #7c3aed;
+  --primary-purple-800: #6b21a8;
+  --primary-purple-900: #581c87;
+
+  /* Couleurs d'accent - Verts */
+  --accent-green: #059669;
+  --accent-green-light: #10b981;
+  --accent-green-dark: #047857;
+  --accent-green-50: #ecfdf5;
+  --accent-green-100: #d1fae5;
+  --accent-green-200: #a7f3d0;
+  --accent-green-300: #6ee7b7;
+  --accent-green-400: #34d399;
+  --accent-green-500: #10b981;
+  --accent-green-600: #059669;
+  --accent-green-700: #047857;
+  --accent-green-800: #065f46;
+  --accent-green-900: #064e3b;
+
+  /* Couleurs d'état - Feedback utilisateur */
+  --success: #059669;
+  --success-light: #10b981;
+  --success-dark: #047857;
+  --warning: #d97706;
+  --warning-light: #f59e0b;
+  --warning-dark: #b45309;
+  --error: #dc2626;
+  --error-light: #ef4444;
+  --error-dark: #b91c1c;
+  --info: #2563eb;
+  --info-light: #3b82f6;
+  --info-dark: #1d4ed8;
+
+  /* Couleurs neutres - Gris */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Couleurs de fond */
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-tertiary: #f1f5f9;
+  --background-dark: #1e293b;
+  --background-card: #ffffff;
+  --background-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Couleurs de texte */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #ffffff;
+  --text-muted: #9ca3af;
+
+  /* Couleurs de bordure */
+  --border-light: #e5e7eb;
+  --border-medium: #d1d5db;
+  --border-dark: #9ca3af;
+  --border-focus: #3b82f6;
+
+  /* Ombres */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  /* Gradients cohérents */
+  --gradient-primary: linear-gradient(135deg, var(--primary-blue-600) 0%, var(--primary-purple-600) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--primary-purple-600) 0%, var(--accent-green-600) 100%);
+  --gradient-success: linear-gradient(135deg, var(--accent-green-600) 0%, var(--accent-green-500) 100%);
+  --gradient-warning: linear-gradient(135deg, var(--warning) 0%, var(--warning-light) 100%);
+  --gradient-error: linear-gradient(135deg, var(--error) 0%, var(--error-light) 100%);
+}
+
+/* ===== THÈMES PAR JEU ===== */
+[data-theme="euromillions"] {
+  --game-primary: var(--primary-blue-600);
+  --game-primary-light: var(--primary-blue-500);
+  --game-primary-dark: var(--primary-blue-700);
+  --game-secondary: var(--primary-purple-600);
+  --game-accent: var(--primary-blue-400);
+}
+
+[data-theme="lotto"] {
+  --game-primary: var(--accent-green-600);
+  --game-primary-light: var(--accent-green-500);
+  --game-primary-dark: var(--accent-green-700);
+  --game-secondary: var(--accent-green-400);
+  --game-accent: var(--accent-green-300);
+}
+
+/* ===== STYLES DE BASE ===== */
+body {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+code {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* ===== CLASSES UTILITAIRES ===== */
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .animate-fade-in-scale {
+    animation: fadeInScale 0.4s ease-out forwards;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .shimmer {
+    background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* ===== FOCUS ET ACCESSIBILITÉ ===== */
+*:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ===== TRANSITIONS ===== */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* ===== COMPOSANTS ===== */
+@layer components {
+  /* Cartes */
+  .card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300;
+  }
+  
+  /* Boutons primaires */
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-blue-200;
+  }
+  
+  .btn-primary:hover {
+    @apply from-blue-700 to-blue-800;
+  }
+  
+  /* Boutons secondaires */
+  .btn-secondary {
+    @apply px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-gray-200;
+  }
+  
+  .btn-secondary:hover {
+    @apply from-gray-700 to-gray-800;
+  }
+  
+  /* Boutons de succès */
+  .btn-success {
+    @apply px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-green-200;
+  }
+  
+  .btn-success:hover {
+    @apply from-green-700 to-green-800;
+  }
+  
+  /* Boutons d'avertissement */
+  .btn-warning {
+    @apply px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-yellow-200;
+  }
+  
+  .btn-warning:hover {
+    @apply from-yellow-600 to-yellow-700;
+  }
+  
+  /* Boutons d'erreur */
+  .btn-danger {
+    @apply px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-red-200;
+  }
+  
+  .btn-danger:hover {
+    @apply from-red-700 to-red-800;
+  }
+  
+  /* Boutons d'information */
+  .btn-info {
+    @apply px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-blue-200;
+  }
+  
+  .btn-info:hover {
+    @apply from-blue-600 to-blue-700;
+  }
+  
+  /* Boutons de jeu spécifiques */
+  .btn-euromillions {
+    @apply bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-blue-200;
+  }
+  
+  .btn-euromillions:hover {
+    @apply from-blue-700 to-purple-700;
+  }
+  
+  .btn-lotto {
+    @apply bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:ring-4 focus:ring-green-200;
+  }
+  
+  .btn-lotto:hover {
+    @apply from-green-700 to-green-800;
+  }
+  
+  /* Boutons compacts pour la navigation */
+  .btn-compact {
+    @apply text-xs px-3 py-2 font-medium;
+  }
+  
+  /* Inputs */
+  .input-modern {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white;
+  }
+  
+  .input-modern:focus {
+    @apply shadow-lg;
+  }
+  
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-blue {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .badge-purple {
+    @apply bg-purple-100 text-purple-800;
+  }
+  
+  .badge-green {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-yellow {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-red {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .badge-gray {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  /* Gradients */
+  .gradient-bg-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-bg-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .gradient-bg-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-bg-warning {
+    background: var(--gradient-warning);
+  }
+  
+  .gradient-bg-error {
+    background: var(--gradient-error);
+  }
+  
+  /* Grilles de numéros */
+  .number-grid {
+    @apply grid grid-cols-7 gap-2 md:gap-3;
+  }
+  
+  .number-ball {
+    @apply w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm md:text-base font-bold text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer;
+  }
+  
+  /* Numéros colorés par plages */
+  .number-1-10 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .number-11-20 { background: linear-gradient(135deg, #f97316, #ea580c); }
+  .number-21-30 { background: linear-gradient(135deg, #eab308, #ca8a04); }
+  .number-31-40 { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .number-41-50 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .number-51-60 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .number-61-70 { background: linear-gradient(135deg, #ec4899, #db2777); }
+  .number-71-80 { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  .number-81-90 { background: linear-gradient(135deg, #84cc16, #65a30d); }
+  .number-91-100 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  
+  /* Étoiles et numéros chance */
+  .star-ball {
+    @apply w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  }
+  
+  .chance-ball {
+    @apply w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer;
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+  
+  /* Modales */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+  }
+  
+  .modal-content {
+    @apply bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto;
+  }
+  
+  /* Tableaux */
+  .table-modern {
+    @apply w-full border-collapse;
+  }
+  
+  .table-modern th {
+    @apply bg-gray-50 text-left p-4 font-semibold text-gray-900 border-b border-gray-200;
+  }
+  
+  .table-modern td {
+    @apply p-4 border-b border-gray-100;
+  }
+  
+  .table-modern tr:hover {
+    @apply bg-gray-50;
+  }
+  
+  /* Statistiques */
+  .stat-card {
+    @apply bg-white rounded-xl p-6 shadow-lg border border-gray-100;
+  }
+  
+  .stat-number {
+    @apply text-3xl font-bold text-gray-900;
+  }
+  
+  .stat-label {
+    @apply text-sm text-gray-600 mt-1;
+  }
+  
+  .chart-container {
+    @apply bg-white rounded-xl p-6 shadow-lg border border-gray-100;
+  }
+  
+  /* Menu latéral */
+  .sidebar {
+    @apply fixed left-0 top-0 h-full bg-white shadow-xl border-r border-gray-200 transition-all duration-300 z-50;
+  }
+  
+  .sidebar-collapsed {
+    @apply w-16;
+  }
+  
+  .sidebar-expanded {
+    @apply w-64;
+  }
+  
+  .sidebar-item {
+    @apply flex items-center space-x-3 px-3 py-3 rounded-xl font-medium transition-all duration-200 group;
+  }
+  
+  .sidebar-item-active {
+    @apply bg-blue-600 text-white shadow-lg;
+  }
+  
+  .sidebar-item-hover {
+    @apply hover:bg-blue-50 hover:text-blue-600;
+  }
+  
+  .main-content {
+    @apply transition-all duration-300;
+  }
+  
+  .main-content-with-sidebar {
+    @apply ml-64;
+  }
+  
+  .main-content-with-collapsed-sidebar {
+    @apply ml-16;
+  }
+  
+  /* États de chargement */
+  .loading {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+  
+  .loading-text {
+    @apply animate-pulse bg-gray-200 rounded h-4;
+  }
+  
+  /* Messages de feedback */
+  .toast {
+    @apply fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg max-w-sm;
+  }
+  
+  .toast-success {
+    @apply bg-green-500 text-white;
+  }
+  
+  .toast-error {
+    @apply bg-red-500 text-white;
+  }
+  
+  .toast-warning {
+    @apply bg-yellow-500 text-white;
+  }
+  
+  .toast-info {
+    @apply bg-blue-500 text-white;
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    @apply w-64;
+  }
+  
+  .main-content-with-sidebar,
+  .main-content-with-collapsed-sidebar {
+    @apply ml-0;
+  }
+  
+  .number-ball {
+    @apply w-8 h-8 text-xs;
+  }
+  
+  .star-ball,
+  .chance-ball {
+    @apply w-6 h-6 text-xs;
+  }
+  
+  /* Boutons de navigation plus compacts sur mobile */
+  .btn-euromillions,
+  .btn-lotto,
+  .btn-info {
+    @apply text-xs px-2 py-1.5;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Boutons encore plus compacts sur très petits écrans */
+  .btn-euromillions,
+  .btn-lotto,
+  .btn-info {
+    @apply text-xs px-2 py-1;
+  }
+}
+
+/* Classes pour le décalage de la sidebar */
+.main-content {
+  margin-left: 16rem; /* 256px = w-64 */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.main-content-collapsed {
+  margin-left: 4rem; /* 64px = w-16 */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.main-content-wrapper {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+@media (max-width: 1024px) {
+  .main-content,
+  .main-content-collapsed,
+  .main-content-wrapper {
+    margin-left: 0 !important;
+    padding-top: 5rem !important; /* Pour laisser de l'espace pour la top bar mobile */
+  }
+}
