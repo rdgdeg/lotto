@@ -15,6 +15,7 @@ frontend/dist/
 .env.development.local
 .env.test.local
 .env.production.local
+backend/.env
 
 # Python
 __pycache__/

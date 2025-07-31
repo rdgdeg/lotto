@@ -10,10 +10,16 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from sqlalchemy import create_engine
 from supabase import create_client
 
-# Configuration Supabase
-SUPABASE_URL = "https://njmwuyirykeywdiwcgtv.supabase.co"
-SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qbXd1eWlyeWtleXdkaXdjZ3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3ODU2MjcsImV4cCI6MjA2OTM2MTYyN30.XEKenw1qwdWC_Guj5dWcfn0OT2pZfrZIQu_gg41bnek"
-SUPABASE_SECRET_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qbXd1eWlyeWtleXdkaXdjZ3R2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Mzc4NTYyNywiZXhwIjoyMDY5MzYxNjI3fQ.IA3K80b_Ozff3_yHcNHXXC8fM8XnNKVEw4A4lbUjekI"
+# Configuration Supabase - Utiliser les variables d'environnement
+import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
 def test_supabase_client():
     """Teste la connexion via le client Supabase"""
@@ -43,12 +49,19 @@ def test_postgres_connection():
     """Teste la connexion PostgreSQL directe"""
     print("\n🔍 Test de connexion PostgreSQL...")
     
-    # Différentes URLs à tester
+    # Différentes URLs à tester (utiliser les variables d'environnement)
+    if not SUPABASE_URL:
+        print("❌ SUPABASE_URL non configurée")
+        return None
+        
+    # Extraire l'ID du projet depuis l'URL
+    project_id = SUPABASE_URL.split('.')[0].split('//')[1]
+    
     urls_to_test = [
-        "postgresql://postgres.njmwuyirykeywdiwcgtv:password@db.njmwuyirykeywdiwcgtv.supabase.co:5432/postgres",
-        "postgresql://postgres.njmwuyirykeywdiwcgtv:password@aws-0-eu-central-1.pooler.supabase.com:6543/postgres",
-        f"postgresql://postgres.njmwuyirykeywdiwcgtv:{SUPABASE_SECRET_KEY}@db.njmwuyirykeywdiwcgtv.supabase.co:5432/postgres",
-        f"postgresql://postgres.njmwuyirykeywdiwcgtv:{SUPABASE_SECRET_KEY}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
+        f"postgresql://postgres.{project_id}:password@db.{project_id}.supabase.co:5432/postgres",
+        f"postgresql://postgres.{project_id}:password@aws-0-eu-central-1.pooler.supabase.com:6543/postgres",
+        f"postgresql://postgres.{project_id}:{SUPABASE_SECRET_KEY}@db.{project_id}.supabase.co:5432/postgres",
+        f"postgresql://postgres.{project_id}:{SUPABASE_SECRET_KEY}@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
     ]
     
     for i, url in enumerate(urls_to_test, 1):
@@ -68,6 +81,13 @@ def test_postgres_connection():
 if __name__ == "__main__":
     print("🚀 Test de configuration Supabase")
     print("=" * 60)
+    
+    # Vérifier que les variables d'environnement sont configurées
+    if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+        print("❌ Variables d'environnement manquantes")
+        print("💡 Créez un fichier .env avec vos clés Supabase")
+        print("💡 Voir le fichier env.example pour la structure")
+        exit(1)
     
     # Test 1: Client Supabase
     client_ok = test_supabase_client()

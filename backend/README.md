@@ -7,7 +7,7 @@ L'application utilise **Supabase** comme base de données PostgreSQL hébergée.
 ### Configuration automatique
 
 Les credentials Supabase sont déjà configurés dans `config.py` :
-- **URL** : https://njmwuyirykeywdiwcgtv.supabase.co
+- **URL** : [Votre URL Supabase]
 - **Clés** : Configurées automatiquement
 
 ## Installation

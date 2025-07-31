@@ -82,7 +82,7 @@ def create_tables_supabase():
         print("🎉 Toutes les tables sont prêtes !")
     else:
         print("\n💡 Pour créer les tables manquantes :")
-        print("1. Allez sur https://supabase.com/dashboard/project/njmwuyirykeywdiwcgtv")
+        print("1. Allez sur votre dashboard Supabase")
         print("2. Cliquez sur 'SQL Editor'")
         print("3. Exécutez les requêtes SQL suivantes :")
         
