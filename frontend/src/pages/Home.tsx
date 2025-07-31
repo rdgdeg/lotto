@@ -5,12 +5,14 @@ import StrategyGuide from '../components/StrategyGuide';
 import ContextualHelp from '../components/ContextualHelp';
 import MainContent from '../components/MainContent';
 import TestLocalData from '../components/TestLocalData';
+import DataExportImport from '../components/DataExportImport';
 
 const Home: React.FC = () => {
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [showStrategyGuide, setShowStrategyGuide] = useState<boolean>(false);
   const [showContextualHelp, setShowContextualHelp] = useState<boolean>(false);
-  const [showTestData, setShowTestData] = useState<boolean>(true); // Temporairement activé
+  const [showTestData, setShowTestData] = useState<boolean>(false);
+  const [showExportImport, setShowExportImport] = useState<boolean>(false);
 
   return (
     <MainContent>
@@ -64,6 +66,12 @@ const Home: React.FC = () => {
                 className="btn-warning bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white"
               >
                 🧪 Test Données
+              </button>
+              <button
+                onClick={() => setShowExportImport(true)}
+                className="btn-info bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white"
+              >
+                📁 Export/Import
               </button>
             </div>
           </div>
@@ -323,6 +331,26 @@ const Home: React.FC = () => {
             </div>
             <div className="p-6">
               <TestLocalData />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal d'export/import */}
+      {showExportImport && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-2xl font-bold">📁 Export/Import des Données</h2>
+              <button
+                onClick={() => setShowExportImport(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6">
+              <DataExportImport />
             </div>
           </div>
         </div>

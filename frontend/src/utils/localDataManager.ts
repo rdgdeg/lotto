@@ -361,6 +361,31 @@ class LocalDataManager {
     }
     await tx.done;
   }
+
+  // Méthodes pour l'export/import
+  async getAllLotoDraws(): Promise<DrawLoto[]> {
+    const db = await this.initDB();
+    return await db.getAll('draws_loto');
+  }
+
+  async getAllEuromillionsDraws(): Promise<DrawEuromillions[]> {
+    const db = await this.initDB();
+    return await db.getAll('draws_euromillions');
+  }
+
+  async addLotoDraw(draw: DrawLoto): Promise<number> {
+    const db = await this.initDB();
+    return await db.add('draws_loto', draw);
+  }
+
+  async addEuromillionsDraw(draw: DrawEuromillions): Promise<number> {
+    const db = await this.initDB();
+    return await db.add('draws_euromillions', draw);
+  }
+
+  async ensureInitialized(): Promise<void> {
+    await this.initDB();
+  }
 }
 
 export const localDataManager = new LocalDataManager(); 
