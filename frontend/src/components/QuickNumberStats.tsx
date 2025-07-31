@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import { fetchYears, fetchQuickStats } from '../utils/apiHelpers';
 import NumberHistoryModal from './NumberHistoryModal';
 
 interface NumberStats {
@@ -48,7 +48,7 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
       starsCount: 2
     },
     lotto: {
-      numberRange: 49,
+      numberRange: 45,
       starRange: 0,
       numbersCount: 6,
       starsCount: 0
@@ -89,15 +89,17 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
 
   // Charger les statistiques
   useEffect(() => {
+    console.log('🔍 useEffect triggered:', { isOpen, gameType, selectedYear, selectedMonth });
     if (isOpen) {
+      console.log('🚀 Ouverture du modal, appel de fetchStats');
       fetchStats();
     }
   }, [isOpen, gameType, selectedYear, selectedMonth]);
 
   const fetchAvailableYears = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/${gameType}/years`);
-      setAvailableYears(response.data.years || []);
+      const years = await fetchYears(gameType);
+      setAvailableYears(years);
     } catch (err) {
       console.error('Erreur lors du chargement des années:', err);
     }
@@ -106,6 +108,8 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
   const fetchStats = async () => {
     setLoading(true);
     setError(null);
+    
+    console.log('🔄 fetchStats appelé pour:', gameType);
 
     try {
       const params = new URLSearchParams();
@@ -116,12 +120,14 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
         params.append('month', selectedMonth);
       }
 
-      const response = await axios.get(
-        `http://localhost:8000/api/${gameType}/quick-stats?${params}`
-      );
-
-      const data = response.data;
+      const data = await fetchQuickStats(gameType, {
+        year: selectedYear !== 'all' ? selectedYear : undefined,
+        month: selectedMonth !== 'all' ? selectedMonth : undefined
+      });
+      console.log('📊 Données reçues:', data);
+      
       setTotalDraws(data.total_draws || 0);
+      console.log('📈 Total draws défini:', data.total_draws || 0);
 
       // Traiter les statistiques des numéros
       const numbers = data.numbers || [];
@@ -131,49 +137,39 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
         return {
           numero: num,
           count: stat?.count || 0,
-          percentage: stat?.percentage || 0,
-          lastAppearance: stat?.last_appearance
+          percentage: stat?.percentage || 0
         };
       });
 
       setNumberStats(processedNumbers);
+      console.log('🎯 Number stats définis:', processedNumbers.length, 'numéros');
 
-      // Traiter les statistiques des étoiles (Euromillions) ou complémentaires (Loto)
+      // Traiter les statistiques des étoiles (Euromillions uniquement)
       if (gameType === 'euromillions') {
-        const stars = data.stars || [];
+        const euromillionsData = data as any;
+        const stars = euromillionsData.stars || [];
         const processedStars = Array.from({ length: currentConfig.starRange }, (_, i) => {
           const star = i + 1;
           const stat = stars.find((s: any) => s.numero === star);
           return {
             numero: star,
             count: stat?.count || 0,
-            percentage: stat?.percentage || 0,
-            lastAppearance: stat?.last_appearance
+            percentage: stat?.percentage || 0
           };
         });
         setStarStats(processedStars);
-      } else if (gameType === 'lotto') {
-        const complementaires = data.complementaires || [];
-        const processedComplementaires = Array.from({ length: 10 }, (_, i) => {
-          const comp = i + 1;
-          const stat = complementaires.find((s: any) => s.numero === comp);
-          return {
-            numero: comp,
-            count: stat?.count || 0,
-            percentage: stat?.percentage || 0,
-            lastAppearance: stat?.last_appearance
-          };
-        });
-        setStarStats(processedComplementaires);
+        console.log('⭐ Star stats définis:', processedStars.length, 'étoiles');
       } else {
+        // Pour le Lotto, pas de section étoiles/complémentaires
         setStarStats([]);
       }
 
     } catch (err: any) {
-      console.error('Erreur lors du chargement des statistiques:', err);
+      console.error('❌ Erreur lors du chargement des statistiques:', err);
       setError(err.response?.data?.detail || 'Erreur lors du chargement des statistiques');
     } finally {
       setLoading(false);
+      console.log('✅ fetchStats terminé');
     }
   };
 
@@ -235,6 +231,11 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
             </h2>
             <p className="text-gray-600 mt-1">
               {getPeriodLabel()} - {totalDraws} tirages analysés
+              {totalDraws === 0 && (
+                <span className="ml-2 text-orange-600 font-medium">
+                  ⚠️ Aucune donnée disponible
+                </span>
+              )}
             </p>
           </div>
           <button
@@ -246,83 +247,76 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
         </div>
 
         <div className="p-6">
-          {/* Filtres */}
-          <div className="mb-6 flex gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Année
-              </label>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          {/* Contrôles compacts */}
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <div className="flex flex-wrap gap-3 items-center">
+              {/* Filtres */}
+              <div className="flex gap-2 items-center">
+                <label className="text-sm font-medium text-gray-700">Année:</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="p-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">Toutes</option>
+                  {availableYears.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <label className="text-sm font-medium text-gray-700">Mois:</label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="p-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">Tous</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                    <option key={month} value={month.toString().padStart(2, '0')}>
+                      {new Date(2024, month - 1).toLocaleDateString('fr-FR', { month: 'short' })}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tri */}
+              <div className="flex gap-2 items-center">
+                <label className="text-sm font-medium text-gray-700">Tri:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'numero' | 'count')}
+                  className="p-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="count">Occurrences</option>
+                  <option value="numero">Numéro</option>
+                </select>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <label className="text-sm font-medium text-gray-700">Ordre:</label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                  className="p-1 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="desc">↓</option>
+                  <option value="asc">↑</option>
+                </select>
+              </div>
+
+              <button
+                onClick={fetchStats}
+                disabled={loading}
+                className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 disabled:opacity-50"
               >
-                <option value="all">Toutes les années</option>
-                {availableYears.map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
+                {loading ? '🔄' : '🔄'}
+              </button>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Mois
-              </label>
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="all">Tous les mois</option>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                  <option key={month} value={month.toString().padStart(2, '0')}>
-                    {new Date(2024, month - 1).toLocaleDateString('fr-FR', { month: 'long' })}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              onClick={fetchStats}
-              disabled={loading}
-              className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-            >
-              {loading ? '🔄 Chargement...' : '🔄 Actualiser'}
-            </button>
-          </div>
-
-          {/* Contrôles de tri */}
-          <div className="mb-6 flex gap-4 items-end">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Trier par
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'numero' | 'count')}
-                className="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="count">Occurrences</option>
-                <option value="numero">Numéro</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ordre
-              </label>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-                className="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="desc">Décroissant</option>
-                <option value="asc">Croissant</option>
-              </select>
-            </div>
-
-            <div className="text-sm text-gray-600">
-              <span className="font-medium">Tri actuel :</span> {sortBy === 'count' ? 'Occurrences' : 'Numéro'} ({sortOrder === 'desc' ? 'Décroissant' : 'Croissant'})
+              <div className="text-xs text-gray-500 ml-2">
+                {sortBy === 'count' ? 'Occurrences' : 'Numéro'} ({sortOrder === 'desc' ? '↓' : '↑'})
+              </div>
             </div>
           </div>
 
@@ -337,9 +331,25 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
               <p className="mt-4 text-gray-600">Chargement des statistiques...</p>
             </div>
+          ) : totalDraws === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📊</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Aucune donnée disponible</h3>
+              <p className="text-gray-600 mb-6">
+                Aucun tirage n'a été trouvé pour la période sélectionnée.
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                <h4 className="font-semibold text-blue-800 mb-2">💡 Que faire ?</h4>
+                <ul className="text-blue-700 text-sm space-y-1">
+                  <li>• Importez vos fichiers CSV de tirages</li>
+                  <li>• Vérifiez les filtres (année/mois)</li>
+                  <li>• Utilisez le bouton "🔍 Diagnostic" pour vérifier l'état</li>
+                </ul>
+              </div>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Statistiques des numéros */}
+            <div className="space-y-6">
+              {/* Statistiques des numéros - Utilisation complète de la largeur */}
               <div>
                 <h3 className="text-xl font-bold text-gray-800 mb-4">
                   🎯 Numéros ({currentConfig.numberRange} numéros)
@@ -347,42 +357,42 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
                     - Trié par {sortBy === 'count' ? 'occurrences' : 'numéro'} ({sortOrder === 'desc' ? '↓' : '↑'})
                   </span>
                 </h3>
-                <div className="grid grid-cols-5 gap-2 max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-7 md:grid-cols-9 lg:grid-cols-10 xl:grid-cols-12 gap-1.5 max-h-80 overflow-y-auto p-2 bg-gray-50 rounded-lg">
                   {sortedNumberStats.map((stat, index) => (
                     <div
                       key={stat.numero}
-                      className={`p-3 border rounded-lg text-center cursor-pointer hover:shadow-md transition-all duration-200 ${getColorClass(stat.percentage, index)}`}
+                      className={`p-2 border rounded-md text-center cursor-pointer hover:shadow-md transition-all duration-200 ${getColorClass(stat.percentage, index)}`}
                       onClick={() => handleNumberClick(stat.numero, 'numero')}
                       title={`Cliquez pour voir l'historique du numéro ${stat.numero}`}
                     >
-                      <div className="text-lg font-bold">{stat.numero.toString().padStart(2, '0')}</div>
-                      <div className="text-sm font-medium">{stat.count}</div>
-                      <div className="text-xs">{stat.percentage.toFixed(1)}%</div>
+                      <div className="text-base font-bold">{stat.numero.toString().padStart(2, '0')}</div>
+                      <div className="text-xs font-medium">{stat.count}</div>
+                      <div className="text-xs opacity-75">{stat.percentage.toFixed(1)}%</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Statistiques des étoiles (Euromillions) ou complémentaires (Loto) */}
+              {/* Statistiques des étoiles (Euromillions uniquement) */}
               {starStats.length > 0 && (
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-4">
-                    {gameType === 'euromillions' ? '⭐ Étoiles' : '🍀 Complémentaires'} ({starStats.length} {gameType === 'euromillions' ? 'étoiles' : 'complémentaires'})
+                    ⭐ Étoiles ({starStats.length} étoiles)
                     <span className="text-sm font-normal text-gray-500 ml-2">
                       - Trié par {sortBy === 'count' ? 'occurrences' : 'numéro'} ({sortOrder === 'desc' ? '↓' : '↑'})
                     </span>
                   </h3>
-                  <div className="grid grid-cols-6 gap-2 max-h-96 overflow-y-auto">
+                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-1.5 max-h-40 overflow-y-auto p-2 bg-gray-50 rounded-lg">
                     {sortedStarStats.map((stat, index) => (
                       <div
                         key={stat.numero}
-                        className={`p-3 border rounded-lg text-center cursor-pointer hover:shadow-md transition-all duration-200 ${getColorClass(stat.percentage, index)}`}
-                        onClick={() => handleNumberClick(stat.numero, gameType === 'euromillions' ? 'etoile' : 'bonus')}
-                        title={`Cliquez pour voir l'historique de ${gameType === 'euromillions' ? 'l\'étoile' : 'du bonus'} ${stat.numero}`}
+                        className={`p-2 border rounded-md text-center cursor-pointer hover:shadow-md transition-all duration-200 ${getColorClass(stat.percentage, index)}`}
+                        onClick={() => handleNumberClick(stat.numero, 'etoile')}
+                        title={`Cliquez pour voir l'historique de l'étoile ${stat.numero}`}
                       >
-                        <div className="text-lg font-bold">{stat.numero.toString().padStart(2, '0')}</div>
-                        <div className="text-sm font-medium">{stat.count}</div>
-                        <div className="text-xs">{stat.percentage.toFixed(1)}%</div>
+                        <div className="text-base font-bold">{stat.numero.toString().padStart(2, '0')}</div>
+                        <div className="text-xs font-medium">{stat.count}</div>
+                        <div className="text-xs opacity-75">{stat.percentage.toFixed(1)}%</div>
                       </div>
                     ))}
                   </div>
@@ -391,30 +401,29 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
             </div>
           )}
 
-          {/* Légende */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold text-gray-800 mb-2">Légende des couleurs :</h4>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                <span>≥ 15% (Très fréquent)</span>
+          {/* Légende compacte */}
+          <div className="mt-4 p-2 bg-gray-50 rounded-lg">
+            <div className="flex flex-wrap gap-3 text-xs">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+                <span>≥15%</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
-                <span>10-15% (Fréquent)</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
+                <span>10-15%</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div>
-                <span>5-10% (Moyen)</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
+                <span>5-10%</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-                <span>&lt; 5% (Peu fréquent)</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-gray-100 border border-gray-300 rounded"></div>
+                <span>&lt;5%</span>
               </div>
               {sortBy === 'count' && (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-100 border-2 border-red-400 rounded shadow-md"></div>
-                  <span>Top 5 (trié par occurrences)</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-gray-100 border-2 border-red-400 rounded shadow-sm"></div>
+                  <span>Top 5</span>
                 </div>
               )}
             </div>

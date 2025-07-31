@@ -293,31 +293,43 @@ async def import_loto_excel(
 @router.get("/stats")
 async def get_loto_stats(db: Session = Depends(get_db)):
     """Récupérer les statistiques Loto en temps réel"""
-    from .loto_advanced_stats import LotoAdvancedStats
-    
-    analyzer = LotoAdvancedStats(db)
-    basic_stats = analyzer._calculate_basic_stats(analyzer.db.query(DrawLoto).all())
-    
-    # Ajouter des statistiques en temps réel
-    from datetime import datetime, timedelta
-    
-    # Statistiques des 30 derniers jours
-    thirty_days_ago = datetime.now().date() - timedelta(days=30)
-    recent_draws = analyzer.db.query(DrawLoto).filter(DrawLoto.date >= thirty_days_ago).all()
-    
-    recent_stats = {
-        "recent_draws": len(recent_draws),
-        "recent_date_range": {
-            "start": min(draw.date for draw in recent_draws).strftime('%Y-%m-%d') if recent_draws else None,
-            "end": max(draw.date for draw in recent_draws).strftime('%Y-%m-%d') if recent_draws else None
+    try:
+        from app.loto_advanced_stats import LotoAdvancedStats
+        from app.models import DrawLoto
+        
+        analyzer = LotoAdvancedStats(db)
+        draws = analyzer.db.query(DrawLoto).all()
+        
+        if not draws:
+            return {
+                "total_draws": 0,
+                "error": "Aucune donnée disponible"
+            }
+        
+        basic_stats = analyzer._calculate_basic_stats(draws)
+        
+        # Ajouter des statistiques en temps réel
+        from datetime import datetime, timedelta
+        
+        # Statistiques des 30 derniers jours
+        thirty_days_ago = datetime.now().date() - timedelta(days=30)
+        recent_draws = analyzer.db.query(DrawLoto).filter(DrawLoto.date >= thirty_days_ago).all()
+        
+        recent_stats = {
+            "recent_draws": len(recent_draws),
+            "recent_date_range": {
+                "start": min(draw.date for draw in recent_draws).strftime('%Y-%m-%d') if recent_draws else None,
+                "end": max(draw.date for draw in recent_draws).strftime('%Y-%m-%d') if recent_draws else None
+            }
         }
-    }
-    
-    return {
-        **basic_stats,
-        **recent_stats,
-        "last_updated": datetime.now().isoformat()
-    }
+        
+        return {
+            **basic_stats,
+            **recent_stats,
+            "last_updated": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors du calcul des statistiques: {str(e)}")
 
 @router.post("/add-draw")
 async def add_single_draw(draw: DrawLotoCreate, db: Session = Depends(get_db)):
@@ -334,8 +346,19 @@ async def add_single_draw(draw: DrawLotoCreate, db: Session = Depends(get_db)):
             if not 1 <= numero <= 45:
                 raise HTTPException(status_code=400, detail=f"Numéro {numero} hors de la plage 1-45")
         
-        if not 1 <= draw.complementaire <= 10:
-            raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-10")
+        if not 1 <= draw.complementaire <= 45:
+            raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-45")
+        
+        # Vérification que le numéro complémentaire n'est pas dans les numéros principaux
+        if draw.complementaire in draw.numeros:
+            raise HTTPException(status_code=400, detail="Le numéro complémentaire ne peut pas être identique à un numéro principal")
+        
+        # Vérification du jour de tirage (Lotto: mercredi et samedi)
+        draw_date = datetime.strptime(draw.date, "%Y-%m-%d").date()
+        day_of_week = draw_date.weekday()  # 0=lundi, 2=mercredi, 5=samedi
+        if day_of_week not in [2, 5]:  # Mercredi et samedi
+            day_names = {0: "lundi", 1: "mardi", 2: "mercredi", 3: "jeudi", 4: "vendredi", 5: "samedi", 6: "dimanche"}
+            raise HTTPException(status_code=400, detail=f"Le Lotto se tire uniquement le mercredi et le samedi. La date sélectionnée ({day_names[day_of_week]}) n'est pas valide.")
         
         # Vérification des doublons
         if len(set(draw.numeros)) != 6:

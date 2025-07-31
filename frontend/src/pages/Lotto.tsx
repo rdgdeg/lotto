@@ -18,6 +18,7 @@ import StatisticsUpdateNotification from '../components/StatisticsUpdateNotifica
 import FileUploadWithValidation from '../components/FileUploadWithValidation';
 import MultipleFileUpload from '../components/MultipleFileUpload';
 import QuickNumberStats from '../components/QuickNumberStats';
+import LottoAdvancedGenerator from '../components/LottoAdvancedGenerator';
 import MainContent from '../components/MainContent';
 import DataExport from '../components/DataExport';
 import DataDiagnostic from '../components/DataDiagnostic';
@@ -38,6 +39,7 @@ const Lotto: React.FC = () => {
   const [showMultipleFileUpload, setShowMultipleFileUpload] = useState<boolean>(false);
   const [showDataExport, setShowDataExport] = useState<boolean>(false);
   const [showDataDiagnostic, setShowDataDiagnostic] = useState<boolean>(false);
+  const [showAdvancedGenerator, setShowAdvancedGenerator] = useState<boolean>(false);
   const [notification, setNotification] = useState<{
     isVisible: boolean;
     message: string;
@@ -147,6 +149,13 @@ const Lotto: React.FC = () => {
                 className="btn-lotto whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
               >
                 📊 Stats Rapides
+              </button>
+              
+              <button
+                onClick={() => setShowAdvancedGenerator(true)}
+                className="btn-lotto whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white"
+              >
+                🎰 Générateur Avancé
               </button>
               
               <button
@@ -412,6 +421,13 @@ const Lotto: React.FC = () => {
         <DataDiagnostic
           onClose={() => setShowDataDiagnostic(false)}
           isOpen={showDataDiagnostic}
+        />
+      )}
+
+      {showAdvancedGenerator && (
+        <LottoAdvancedGenerator
+          onClose={() => setShowAdvancedGenerator(false)}
+          isOpen={showAdvancedGenerator}
         />
       )}
 

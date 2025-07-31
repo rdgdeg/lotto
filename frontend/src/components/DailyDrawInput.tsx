@@ -20,6 +20,7 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
   const [chanceNumber, setChanceNumber] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dateWarning, setDateWarning] = useState<string | null>(null);
 
   // Configuration selon le type de jeu
   const config = {
@@ -36,11 +37,37 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
       starsCount: 0,
       starRange: 0,
       hasChance: true,
-      chanceRange: 10
+      chanceRange: 45
     }
   };
 
   const currentConfig = config[gameType];
+
+  // Fonction pour vérifier la validité de la date
+  const checkDateValidity = (selectedDate: string) => {
+    if (!selectedDate) return;
+    
+    const dateObj = new Date(selectedDate);
+    const dayOfWeek = dateObj.getDay(); // 0=dimanche, 1=lundi, 2=mardi, 3=mercredi, 4=jeudi, 5=vendredi, 6=samedi
+    
+    if (gameType === 'lotto') {
+      // Lotto: mercredi (3) et samedi (6)
+      if (dayOfWeek !== 3 && dayOfWeek !== 6) {
+        const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        setDateWarning(`⚠️ Le Lotto se tire uniquement le mercredi et le samedi. La date sélectionnée (${dayNames[dayOfWeek]}) n'est pas un jour de tirage.`);
+      } else {
+        setDateWarning(null);
+      }
+    } else if (gameType === 'euromillions') {
+      // Euromillions: mardi (2) et vendredi (5)
+      if (dayOfWeek !== 2 && dayOfWeek !== 5) {
+        const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        setDateWarning(`⚠️ L'Euromillions se tire uniquement le mardi et le vendredi. La date sélectionnée (${dayNames[dayOfWeek]}) n'est pas un jour de tirage.`);
+      } else {
+        setDateWarning(null);
+      }
+    }
+  };
 
   // Initialiser la date à aujourd'hui
   useEffect(() => {
@@ -51,8 +78,10 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
       setStars(new Array(currentConfig.starsCount).fill(null));
       setChanceNumber(null);
       setError(null);
+      setDateWarning(null);
+      checkDateValidity(today);
     }
-  }, [isOpen, currentConfig.numbersCount, currentConfig.starsCount]);
+  }, [isOpen, currentConfig.numbersCount, currentConfig.starsCount, gameType]);
 
   const handleNumberChange = (index: number, value: string) => {
     const numValue = value === '' ? null : parseInt(value);
@@ -70,6 +99,11 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
       newStars[index] = starValue;
       setStars(newStars);
     }
+  };
+
+  const handleDateChange = (value: string) => {
+    setDate(value);
+    checkDateValidity(value);
   };
 
   const handleChanceChange = (value: string) => {
@@ -109,8 +143,19 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
 
   const generateRandomChance = () => {
     if (!currentConfig.hasChance) return;
-    const randomChance = Math.floor(Math.random() * (currentConfig as any).chanceRange) + 1;
-    setChanceNumber(randomChance);
+    
+    // Créer une liste des numéros disponibles (exclure les numéros principaux)
+    const usedNumbers = numbers.filter(n => n !== null);
+    const availableNumbers = Array.from({ length: (currentConfig as any).chanceRange }, (_, i) => i + 1)
+      .filter(num => !usedNumbers.includes(num));
+    
+    if (availableNumbers.length === 0) {
+      setError('Aucun numéro disponible pour le numéro chance');
+      return;
+    }
+    
+    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+    setChanceNumber(availableNumbers[randomIndex]);
   };
 
   const handleSubmit = async () => {
@@ -127,6 +172,12 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
 
     if (currentConfig.hasChance && chanceNumber === null) {
       setError('Veuillez remplir le numéro chance');
+      return;
+    }
+
+    // Vérifier que le numéro chance n'est pas dans les numéros principaux
+    if (currentConfig.hasChance && chanceNumber !== null && numbers.includes(chanceNumber)) {
+      setError('Le numéro chance ne peut pas être identique à un numéro principal');
       return;
     }
 
@@ -187,6 +238,7 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
       (currentConfig.starsCount === 0 || stars.every(s => s !== null)) &&
       (!currentConfig.hasChance || chanceNumber !== null) &&
       date !== '' &&
+      !dateWarning && // Empêcher la soumission si la date n'est pas valide
       new Set(numbers).size === numbers.length &&
       (currentConfig.starsCount === 0 || new Set(stars).size === stars.length)
     );
@@ -218,9 +270,16 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
             <input
               type="date"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={(e) => handleDateChange(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
+            
+            {/* Avertissement de date */}
+            {dateWarning && (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg mt-2">
+                {dateWarning}
+              </div>
+            )}
           </div>
 
           {/* Numéros principaux */}
@@ -290,7 +349,7 @@ const DailyDrawInput: React.FC<DailyDrawInputProps> = ({
             <div>
               <div className="flex justify-between items-center mb-3">
                 <label className="block text-sm font-medium text-gray-700">
-                  🍀 Numéro chance (1-{(currentConfig as any).chanceRange})
+                  🍀 Numéro complémentaire (1-{(currentConfig as any).chanceRange})
                 </label>
                 <button
                   type="button"

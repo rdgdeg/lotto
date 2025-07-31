@@ -4,11 +4,13 @@ import HelpModal from '../components/HelpModal';
 import StrategyGuide from '../components/StrategyGuide';
 import ContextualHelp from '../components/ContextualHelp';
 import MainContent from '../components/MainContent';
+import TestLocalData from '../components/TestLocalData';
 
 const Home: React.FC = () => {
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [showStrategyGuide, setShowStrategyGuide] = useState<boolean>(false);
   const [showContextualHelp, setShowContextualHelp] = useState<boolean>(false);
+  const [showTestData, setShowTestData] = useState<boolean>(true); // Temporairement activé
 
   return (
     <MainContent>
@@ -56,6 +58,12 @@ const Home: React.FC = () => {
                 className="btn-success bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white"
               >
                 💡 Conseils IA
+              </button>
+              <button
+                onClick={() => setShowTestData(true)}
+                className="btn-warning bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white"
+              >
+                🧪 Test Données
               </button>
             </div>
           </div>
@@ -298,6 +306,26 @@ const Home: React.FC = () => {
             </div>
           }
         />
+      )}
+      
+      {/* Modal de test des données locales */}
+      {showTestData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-2xl font-bold">🧪 Test des Données Locales</h2>
+              <button
+                onClick={() => setShowTestData(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6">
+              <TestLocalData />
+            </div>
+          </div>
+        </div>
       )}
     </MainContent>
   );

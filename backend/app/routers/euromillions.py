@@ -390,6 +390,12 @@ async def add_single_draw(draw: DrawEuromillionsCreate, db: Session = Depends(ge
         except ValueError:
             raise HTTPException(status_code=400, detail="Format de date invalide (YYYY-MM-DD)")
         
+        # Vérification du jour de tirage (Euromillions: mardi et vendredi)
+        day_of_week = draw_date.weekday()  # 0=lundi, 1=mardi, 4=vendredi
+        if day_of_week not in [1, 4]:  # Mardi et vendredi
+            day_names = {0: "lundi", 1: "mardi", 2: "mercredi", 3: "jeudi", 4: "vendredi", 5: "samedi", 6: "dimanche"}
+            raise HTTPException(status_code=400, detail=f"L'Euromillions se tire uniquement le mardi et le vendredi. La date sélectionnée ({day_names[day_of_week]}) n'est pas valide.")
+        
         # Vérification des doublons de date
         existing_draw = db.query(DrawEuromillions).filter(
             DrawEuromillions.date == draw_date
