@@ -105,11 +105,78 @@ async def validate_euromillions_upload(file: UploadFile = File(...), db: Session
         raise HTTPException(status_code=400, detail=f"Erreur lors de la validation: {str(e)}")
 
 @router.get("/stats")
-async def get_euromillions_stats(db: Session = Depends(get_db)):
-    """Récupérer les statistiques Euromillions"""
-    analyzer = StatistiquesAnalyzer(db)
-    stats = analyzer.calculate_frequencies_euromillions()
-    return stats
+async def get_euromillions_stats(
+    year: Optional[int] = Query(None, description="Filtrer par année"),
+    month: Optional[int] = Query(None, description="Filtrer par mois"),
+    db: Session = Depends(get_db)
+):
+    """Récupérer les statistiques Euromillions basées sur les vrais tirages"""
+    from ..models import DrawEuromillions
+    from sqlalchemy import extract, func
+    from collections import Counter
+    
+    # Construire la requête avec filtres
+    query = db.query(DrawEuromillions)
+    
+    if year is not None:
+        query = query.filter(extract('year', DrawEuromillions.date) == year)
+    
+    if month is not None:
+        query = query.filter(extract('month', DrawEuromillions.date) == month)
+    
+    # Récupérer tous les tirages
+    draws = query.all()
+    
+    if not draws:
+        return {
+            "numeros": [],
+            "etoiles": [],
+            "total_draws": 0,
+            "message": "Aucun tirage trouvé pour les critères spécifiés"
+        }
+    
+    # Extraire tous les numéros et étoiles
+    all_numbers = []
+    all_stars = []
+    
+    for draw in draws:
+        all_numbers.extend([draw.n1, draw.n2, draw.n3, draw.n4, draw.n5])
+        all_stars.extend([draw.e1, draw.e2])
+    
+    # Compter les occurrences
+    number_count = Counter(all_numbers)
+    star_count = Counter(all_stars)
+    
+    # Calculer les totaux
+    total_number_occurrences = sum(number_count.values())
+    total_star_occurrences = sum(star_count.values())
+    
+    # Formater les résultats
+    def format_stats(items, total_occurrences):
+        return [
+            {
+                "numero": num,
+                "frequence": count,
+                "pourcentage": (count / total_occurrences) * 100 if total_occurrences > 0 else 0
+            } 
+            for num, count in items
+        ]
+    
+    # Top 10 numéros et top 6 étoiles
+    top_numbers = number_count.most_common(10)
+    top_stars = star_count.most_common(6)
+    
+    return {
+        "numeros": format_stats(top_numbers, total_number_occurrences),
+        "etoiles": format_stats(top_stars, total_star_occurrences),
+        "total_draws": len(draws),
+        "total_number_occurrences": total_number_occurrences,
+        "total_star_occurrences": total_star_occurrences,
+        "date_range": {
+            "start": min(draw.date for draw in draws).strftime('%Y-%m-%d'),
+            "end": max(draw.date for draw in draws).strftime('%Y-%m-%d')
+        } if draws else None
+    }
 
 @router.get("/number/{number}")
 async def get_number_history(

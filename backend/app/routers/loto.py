@@ -304,45 +304,78 @@ async def import_loto_excel(
         raise HTTPException(status_code=500, detail=f"Erreur lors de l'import: {str(e)}")
 
 @router.get("/stats")
-async def get_loto_stats(db: Session = Depends(get_db)):
-    """Récupérer les statistiques Loto en temps réel"""
-    try:
-        from app.loto_advanced_stats import LotoAdvancedStats
-        from app.models import DrawLoto
-        
-        analyzer = LotoAdvancedStats(db)
-        draws = analyzer.db.query(DrawLoto).all()
-        
-        if not draws:
-            return {
-                "total_draws": 0,
-                "error": "Aucune donnée disponible"
-            }
-        
-        basic_stats = analyzer._calculate_basic_stats(draws)
-        
-        # Ajouter des statistiques en temps réel
-        from datetime import datetime, timedelta
-        
-        # Statistiques des 30 derniers jours
-        thirty_days_ago = datetime.now().date() - timedelta(days=30)
-        recent_draws = analyzer.db.query(DrawLoto).filter(DrawLoto.date >= thirty_days_ago).all()
-        
-        recent_stats = {
-            "recent_draws": len(recent_draws),
-            "recent_date_range": {
-                "start": min(draw.date for draw in recent_draws).strftime('%Y-%m-%d') if recent_draws else None,
-                "end": max(draw.date for draw in recent_draws).strftime('%Y-%m-%d') if recent_draws else None
-            }
-        }
-        
+async def get_loto_stats(
+    year: Optional[int] = Query(None, description="Filtrer par année"),
+    month: Optional[int] = Query(None, description="Filtrer par mois"),
+    db: Session = Depends(get_db)
+):
+    """Récupérer les statistiques Loto basées sur les vrais tirages"""
+    from ..models import DrawLoto
+    from sqlalchemy import extract, func
+    from collections import Counter
+    
+    # Construire la requête avec filtres
+    query = db.query(DrawLoto)
+    
+    if year is not None:
+        query = query.filter(extract('year', DrawLoto.date) == year)
+    
+    if month is not None:
+        query = query.filter(extract('month', DrawLoto.date) == month)
+    
+    # Récupérer tous les tirages
+    draws = query.all()
+    
+    if not draws:
         return {
-            **basic_stats,
-            **recent_stats,
-            "last_updated": datetime.now().isoformat()
+            "numeros": [],
+            "complementaires": [],
+            "total_draws": 0,
+            "message": "Aucun tirage trouvé pour les critères spécifiés"
         }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors du calcul des statistiques: {str(e)}")
+    
+    # Extraire tous les numéros et complémentaires
+    all_numbers = []
+    all_complementaires = []
+    
+    for draw in draws:
+        all_numbers.extend([draw.n1, draw.n2, draw.n3, draw.n4, draw.n5, draw.n6])
+        all_complementaires.append(draw.complementaire)
+    
+    # Compter les occurrences
+    number_count = Counter(all_numbers)
+    complementaire_count = Counter(all_complementaires)
+    
+    # Calculer les totaux
+    total_number_occurrences = sum(number_count.values())
+    total_complementaire_occurrences = sum(complementaire_count.values())
+    
+    # Formater les résultats
+    def format_stats(items, total_occurrences):
+        return [
+            {
+                "numero": num,
+                "frequence": count,
+                "pourcentage": (count / total_occurrences) * 100 if total_occurrences > 0 else 0
+            } 
+            for num, count in items
+        ]
+    
+    # Top 10 numéros et top 6 complémentaires
+    top_numbers = number_count.most_common(10)
+    top_complementaires = complementaire_count.most_common(6)
+    
+    return {
+        "numeros": format_stats(top_numbers, total_number_occurrences),
+        "complementaires": format_stats(top_complementaires, total_complementaire_occurrences),
+        "total_draws": len(draws),
+        "total_number_occurrences": total_number_occurrences,
+        "total_complementaire_occurrences": total_complementaire_occurrences,
+        "date_range": {
+            "start": min(draw.date for draw in draws).strftime('%Y-%m-%d'),
+            "end": max(draw.date for draw in draws).strftime('%Y-%m-%d')
+        } if draws else None
+    }
 
 @router.post("/add-draw")
 async def add_single_draw(draw: DrawLotoCreate, db: Session = Depends(get_db)):

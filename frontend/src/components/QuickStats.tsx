@@ -16,6 +16,8 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
     numeros: StatItem[] | Record<string, any>;
     etoiles?: StatItem[] | Record<string, any>;
     complementaires?: StatItem[] | Record<string, any>;
+    total_draws?: number;
+    date_range?: { start: string; end: string };
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,44 +84,78 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
         cursor: 'pointer',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
-        borderRadius: '12px',
+        borderRadius: '16px',
         padding: '1.5rem',
         textAlign: 'center',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        transition: 'transform 0.2s ease-in-out',
-        border: '2px solid transparent'
+        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+        transition: 'all 0.3s ease-in-out',
+        border: '3px solid transparent',
+        position: 'relative',
+        overflow: 'hidden'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
         e.currentTarget.style.borderColor = '#fff';
+        e.currentTarget.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.2)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.transform = 'translateY(0) scale(1)';
         e.currentTarget.style.borderColor = 'transparent';
+        e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)';
       }}
     >
+      {/* Effet de brillance */}
+      <div style={{
+        position: 'absolute',
+        top: '-50%',
+        left: '-50%',
+        width: '200%',
+        height: '200%',
+        background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
+        transform: 'rotate(45deg)',
+        transition: 'transform 0.6s ease',
+        pointerEvents: 'none'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'rotate(45deg) translateX(100%)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'rotate(45deg) translateX(-100%)';
+      }}
+      />
+      
       <div style={{ 
-        fontSize: '2rem', 
+        fontSize: '2.5rem', 
         fontWeight: 'bold', 
-        marginBottom: '0.5rem',
-        textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+        marginBottom: '0.75rem',
+        textShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
+        position: 'relative',
+        zIndex: 1
       }}>
         {item.numero}
       </div>
+      
       <div style={{ 
-        fontSize: '1.2rem', 
+        fontSize: '1.4rem', 
         fontWeight: 'bold',
-        marginBottom: '0.25rem'
+        marginBottom: '0.5rem',
+        position: 'relative',
+        zIndex: 1
       }}>
         {item.frequence} fois
       </div>
+      
       <div style={{ 
-        fontSize: '1rem', 
-        opacity: 0.9,
-        background: 'rgba(255, 255, 255, 0.2)',
-        padding: '0.25rem 0.5rem',
-        borderRadius: '6px',
-        display: 'inline-block'
+        fontSize: '1.1rem', 
+        opacity: 0.95,
+        background: 'rgba(255, 255, 255, 0.25)',
+        padding: '0.5rem 0.75rem',
+        borderRadius: '12px',
+        display: 'inline-block',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        position: 'relative',
+        zIndex: 1
       }}>
         {item.pourcentage > 0 ? item.pourcentage.toFixed(1) : '0.0'}%
       </div>
@@ -519,6 +555,30 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
       }}>
         <strong>💡 Astuce :</strong> Cliquez sur un numéro pour voir son historique complet de tirages. Utilisez les filtres pour analyser des périodes spécifiques.
       </div>
+
+      {/* Indicateur de données réelles */}
+      {stats && stats.total_draws && stats.total_draws > 0 && (
+        <div style={{ 
+          marginTop: '1rem', 
+          padding: '0.75rem', 
+          background: 'linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)', 
+          borderRadius: '8px',
+          fontSize: '0.85rem',
+          color: '#2e7d32',
+          border: '1px solid #81c784',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>✅</span>
+          <div>
+            <strong>Données réelles :</strong> Statistiques basées sur {stats.total_draws} tirage(s) 
+            {stats.date_range && (
+              <span> du {stats.date_range.start} au {stats.date_range.end}</span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
