@@ -250,9 +250,9 @@ async def import_loto_excel(
                         break
                     numeros.append(int(numero))
                 else:
-                    # Vérification des plages pour le Loto (1-45)
-                    if not all(1 <= n <= 45 for n in numeros):
-                        errors.append(f"Ligne {index + 2}: Numéros hors de la plage 1-45")
+                    # Vérification des plages pour le Loto (1-49 pour les numéros principaux)
+                    if not all(1 <= n <= 49 for n in numeros):  # Changé de 45 à 49
+                        errors.append(f"Ligne {index + 2}: Numéros hors de la plage 1-49")
                         continue
                     
                     if len(set(numeros)) != 6:
@@ -334,12 +334,14 @@ async def get_loto_stats(
             "message": "Aucun tirage trouvé pour les critères spécifiés"
         }
     
-    # Extraire tous les numéros et complémentaires
+    # Extraire tous les numéros (6 par tirage) et complémentaires (1 par tirage)
     all_numbers = []
     all_complementaires = []
     
     for draw in draws:
+        # 6 numéros principaux (1-49)
         all_numbers.extend([draw.n1, draw.n2, draw.n3, draw.n4, draw.n5, draw.n6])
+        # 1 numéro chance (1-45)
         all_complementaires.append(draw.complementaire)
     
     # Compter les occurrences
@@ -361,7 +363,7 @@ async def get_loto_stats(
             for num, count in items
         ]
     
-    # Top 10 numéros et top 6 complémentaires
+    # Top 10 numéros principaux et top 6 numéros chance
     top_numbers = number_count.most_common(10)
     top_complementaires = complementaire_count.most_common(6)
     
@@ -374,7 +376,13 @@ async def get_loto_stats(
         "date_range": {
             "start": min(draw.date for draw in draws).strftime('%Y-%m-%d'),
             "end": max(draw.date for draw in draws).strftime('%Y-%m-%d')
-        } if draws else None
+        } if draws else None,
+        "game_info": {
+            "numeros_range": "1-49",
+            "complementaire_range": "1-45",
+            "numeros_per_draw": 6,
+            "complementaire_per_draw": 1
+        }
     }
 
 @router.post("/add-draw")
@@ -389,10 +397,10 @@ async def add_single_draw(draw: DrawLotoCreate, db: Session = Depends(get_db)):
         
         # Validation des plages
         for numero in draw.numeros:
-            if not 1 <= numero <= 45:
-                raise HTTPException(status_code=400, detail=f"Numéro {numero} hors de la plage 1-45")
+            if not 1 <= numero <= 49:  # Changé de 45 à 49 pour les numéros principaux
+                raise HTTPException(status_code=400, detail=f"Numéro {numero} hors de la plage 1-49")
         
-        if not (1 <= draw.complementaire <= 45):
+        if not (1 <= draw.complementaire <= 45):  # Complémentaire reste 1-45
             raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-45")
         
         # Vérification que le numéro complémentaire n'est pas dans les numéros principaux
@@ -567,7 +575,7 @@ async def generate_loto_grids(
     for i in range(num_grids):
         # Génération aléatoire simple (fonctionne même sans données existantes)
         import random
-        numeros = sorted(random.sample(range(1, 46), 6))
+        numeros = sorted(random.sample(range(1, 50), 6))  # Changé de 46 à 50
         complementaire = random.randint(1, 45)
         
         grids.append({
@@ -590,17 +598,17 @@ async def generate_loto_grids_post(
     # Logique de génération basique
     grids = []
     for i in range(num_grids):
-        # Génération aléatoire simple (fonctionne même sans données existantes)
-        import random
-        numeros = sorted(random.sample(range(1, 46), 6))
-        complementaire = random.randint(1, 45)
-        
-        grids.append({
-            "numeros": numeros,
-            "complementaire": complementaire,
-            "type": "generated",
-            "strategy": strategy
-        })
+        # Générer des grilles aléatoires
+        grids = []
+        for i in range(num_grids):
+            numeros = sorted(random.sample(range(1, 50), 6))  # Changé de 46 à 50
+            complementaire = random.randint(1, 45)
+            grids.append({
+                "id": i + 1,
+                "numeros": numeros,
+                "complementaire": complementaire,
+                "type": "random"
+            })
     
     return {"grids": grids}
 
@@ -806,8 +814,8 @@ def analyze_grid(
             raise HTTPException(status_code=400, detail="Numéros en double détectés")
         
         # Vérifier la plage des numéros
-        if not all(1 <= n <= 45 for n in numeros):
-            raise HTTPException(status_code=400, detail="Numéros hors plage: doivent être entre 1 et 45")
+        if not all(1 <= n <= 49 for n in numeros):  # Changé de 45 à 49
+            raise HTTPException(status_code=400, detail="Numéros hors plage: doivent être entre 1 et 49")
         
         # Calculer les statistiques de base
         from app.models import DrawLoto

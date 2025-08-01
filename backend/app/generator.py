@@ -63,38 +63,35 @@ class GridGenerator:
         if use_imported_stats:
             imported_stats = self.get_imported_stats("loto")
             if imported_stats:
-                numeros_weights = [imported_stats.get(i, 0.1) for i in range(1, 46)]
+                # Créer des poids pour les numéros (1-49) et complémentaires (1-45)
+                numeros_weights = [imported_stats.get(i, 0.1) for i in range(1, 50)]  # Changé de 46 à 50
                 complementaire_weights = [imported_stats.get(i, 0.1) for i in range(1, 46)]
             else:
                 freq_data = self.analyzer.calculate_frequencies_loto()
-                numeros_weights = [freq_data["numeros"].get(i, 0.1) for i in range(1, 46)]
+                numeros_weights = [freq_data["numeros"].get(i, 0.1) for i in range(1, 50)]  # Changé de 46 à 50
                 complementaire_weights = [freq_data["complementaires"].get(i, 0.1) for i in range(1, 46)]
         else:
+            # Utiliser les statistiques calculées
             freq_data = self.analyzer.calculate_frequencies_loto()
-            numeros_weights = [freq_data["numeros"].get(i, 0.1) for i in range(1, 46)]
+            numeros_weights = [freq_data["numeros"].get(i, 0.1) for i in range(1, 50)]  # Changé de 46 à 50
             complementaire_weights = [freq_data["complementaires"].get(i, 0.1) for i in range(1, 46)]
-        
-        # Vérifier si tous les poids sont à 0 (pas de données)
-        if sum(numeros_weights) == 0:
-            # Utiliser des poids uniformes si pas de données
-            numeros_weights = [1.0] * 45
-            complementaire_weights = [1.0] * 45
-        
-        # Normaliser les poids
-        numeros_weights = np.array(numeros_weights)
-        complementaire_weights = np.array(complementaire_weights)
-        
-        numeros_weights = numeros_weights / numeros_weights.sum()
-        complementaire_weights = complementaire_weights / complementaire_weights.sum()
-        
-        # Tirer 6 numéros sans remise
-        numeros = np.random.choice(range(1, 46), size=6, replace=False, p=numeros_weights)
-        
-        # Tirer 1 complémentaire
-        complementaire = np.random.choice(range(1, 46), size=1, p=complementaire_weights)[0]
+            
+            # Normaliser
+            numeros_weights = np.array(numeros_weights)
+            complementaire_weights = np.array(complementaire_weights)
+            
+            numeros_weights = numeros_weights / numeros_weights.sum()
+            complementaire_weights = complementaire_weights / complementaire_weights.sum()
+            
+            # Tirer les numéros
+            numeros = np.random.choice(range(1, 50), size=6, replace=False, p=numeros_weights)  # Changé de 46 à 50
+            numeros = sorted(numeros.tolist())
+            
+            # Tirer le complémentaire
+            complementaire = np.random.choice(range(1, 46), size=1, p=complementaire_weights)[0]
         
         return {
-            "numeros": sorted(numeros.tolist()),
+            "numeros": numeros,
             "complementaire": complementaire,
             "type": "weighted"
         }
@@ -175,7 +172,7 @@ class GridGenerator:
     
     def generate_random_grid_loto(self) -> Dict:
         """Génère une grille Loto aléatoire"""
-        numeros = sorted(random.sample(range(1, 46), 6))
+        numeros = sorted(random.sample(range(1, 50), 6))  # Changé de 46 à 50 pour 1-49
         complementaire = random.randint(1, 45)
         
         return {
