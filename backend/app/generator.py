@@ -74,6 +74,12 @@ class GridGenerator:
             numeros_weights = [freq_data["numeros"].get(i, 0.1) for i in range(1, 46)]
             complementaire_weights = [freq_data["complementaires"].get(i, 0.1) for i in range(1, 46)]
         
+        # Vérifier si tous les poids sont à 0 (pas de données)
+        if sum(numeros_weights) == 0:
+            # Utiliser des poids uniformes si pas de données
+            numeros_weights = [1.0] * 45
+            complementaire_weights = [1.0] * 10
+        
         # Normaliser les poids
         numeros_weights = np.array(numeros_weights)
         complementaire_weights = np.array(complementaire_weights)
