@@ -13,9 +13,9 @@ interface QuickStatsProps {
 
 const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
   const [stats, setStats] = useState<{
-    numeros: StatItem[];
-    etoiles?: StatItem[];
-    complementaires?: StatItem[];
+    numeros: StatItem[] | Record<string, any>;
+    etoiles?: StatItem[] | Record<string, any>;
+    complementaires?: StatItem[] | Record<string, any>;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +75,23 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
     </div>
   );
 
+  // Fonction pour convertir un objet en tableau de StatItem
+  const convertToStatItems = (data: any): StatItem[] => {
+    if (Array.isArray(data)) {
+      return data;
+    }
+    
+    if (typeof data === 'object' && data !== null) {
+      return Object.entries(data).map(([numero, value]: [string, any]) => ({
+        numero: parseInt(numero),
+        frequence: typeof value === 'object' ? value.frequence || value.count || 0 : value,
+        pourcentage: typeof value === 'object' ? value.pourcentage || 0 : 0
+      })).sort((a, b) => b.frequence - a.frequence);
+    }
+    
+    return [];
+  };
+
   if (loading) {
     return (
       <div className="loading">
@@ -98,6 +115,11 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
     );
   }
 
+  // Convertir les données en tableaux
+  const numerosItems = convertToStatItems(stats?.numeros || []);
+  const etoilesItems = convertToStatItems(stats?.etoiles || []);
+  const complementairesItems = convertToStatItems(stats?.complementaires || []);
+
   return (
     <div>
       <div className="card-header">
@@ -113,20 +135,20 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
               🔢 Numéros les plus fréquents :
             </h3>
             <div className="stats-grid">
-              {stats.numeros?.slice(0, 10).map((item) => (
+              {numerosItems.slice(0, 10).map((item) => (
                 <StatCard key={item.numero} item={item} type="numero" />
               ))}
             </div>
           </div>
 
           {/* Étoiles/Bonus les plus fréquents */}
-          {gameType === 'euromillions' && stats.etoiles && (
+          {gameType === 'euromillions' && etoilesItems.length > 0 && (
             <div style={{ marginBottom: '2rem' }}>
               <h3 style={{ marginBottom: '1rem', color: '#2c3e50' }}>
                 ⭐ Étoiles les plus fréquentes :
               </h3>
               <div className="stats-grid">
-                {stats.etoiles.slice(0, 6).map((item) => (
+                {etoilesItems.slice(0, 6).map((item) => (
                   <StatCard key={item.numero} item={item} type="etoile" />
                 ))}
               </div>
@@ -134,13 +156,13 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
           )}
 
           {/* Numéros chance les plus fréquents (Lotto) */}
-          {gameType === 'lotto' && stats.complementaires && (
+          {gameType === 'lotto' && complementairesItems.length > 0 && (
             <div style={{ marginBottom: '2rem' }}>
               <h3 style={{ marginBottom: '1rem', color: '#2c3e50' }}>
                 🍀 Numéros chance les plus fréquents :
               </h3>
               <div className="stats-grid">
-                {stats.complementaires.slice(0, 6).map((item) => (
+                {complementairesItems.slice(0, 6).map((item) => (
                   <StatCard key={item.numero} item={item} type="complementaire" />
                 ))}
               </div>
