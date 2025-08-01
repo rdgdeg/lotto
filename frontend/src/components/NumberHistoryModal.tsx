@@ -51,8 +51,15 @@ const NumberHistoryModal: React.FC<NumberHistoryModalProps> = ({
     setError(null);
 
     const url = `http://localhost:8000/api/${gameType}/number/${number}`;
+    
+    // Adapter le type selon le jeu
+    let apiType = numberType;
+    if (gameType === 'lotto' && numberType === 'etoile') {
+      apiType = 'bonus';
+    }
+    
     const params = {
-      type: numberType,
+      type: apiType,
       limit: itemsPerPage,
       offset: (currentPage - 1) * itemsPerPage,
       sort_by: sortBy,

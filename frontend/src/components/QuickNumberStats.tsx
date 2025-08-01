@@ -377,7 +377,7 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
               {starStats.length > 0 && (
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-4">
-                    ⭐ Étoiles ({starStats.length} étoiles)
+                    {gameType === 'euromillions' ? '⭐ Étoiles' : '🍀 Bonus'} ({starStats.length} {gameType === 'euromillions' ? 'étoiles' : 'bonus'})
                     <span className="text-sm font-normal text-gray-500 ml-2">
                       - Trié par {sortBy === 'count' ? 'occurrences' : 'numéro'} ({sortOrder === 'desc' ? '↓' : '↑'})
                     </span>
@@ -387,8 +387,8 @@ const QuickNumberStats: React.FC<QuickNumberStatsProps> = ({
                       <div
                         key={stat.numero}
                         className={`p-2 border rounded-md text-center cursor-pointer hover:shadow-md transition-all duration-200 ${getColorClass(stat.percentage, index)}`}
-                        onClick={() => handleNumberClick(stat.numero, 'etoile')}
-                        title={`Cliquez pour voir l'historique de l'étoile ${stat.numero}`}
+                        onClick={() => handleNumberClick(stat.numero, gameType === 'euromillions' ? 'etoile' : 'bonus')}
+                        title={`Cliquez pour voir l'historique du ${gameType === 'euromillions' ? 'étoile' : 'bonus'} ${stat.numero}`}
                       >
                         <div className="text-base font-bold">{stat.numero.toString().padStart(2, '0')}</div>
                         <div className="text-xs font-medium">{stat.count}</div>
