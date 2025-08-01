@@ -359,8 +359,8 @@ async def add_single_draw(draw: DrawLotoCreate, db: Session = Depends(get_db)):
             if not 1 <= numero <= 45:
                 raise HTTPException(status_code=400, detail=f"Numéro {numero} hors de la plage 1-45")
         
-        if not (1 <= draw.complementaire <= 10):
-            raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-10")
+        if not (1 <= draw.complementaire <= 45):
+            raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-45")
         
         # Vérification que le numéro complémentaire n'est pas dans les numéros principaux
         if draw.complementaire in draw.numeros:
@@ -535,7 +535,7 @@ async def generate_loto_grids(
         # Génération aléatoire simple (fonctionne même sans données existantes)
         import random
         numeros = sorted(random.sample(range(1, 46), 6))
-        complementaire = random.randint(1, 10)
+        complementaire = random.randint(1, 45)
         
         grids.append({
             "numeros": numeros,
@@ -560,7 +560,7 @@ async def generate_loto_grids_post(
         # Génération aléatoire simple (fonctionne même sans données existantes)
         import random
         numeros = sorted(random.sample(range(1, 46), 6))
-        complementaire = random.randint(1, 10)
+        complementaire = random.randint(1, 45)
         
         grids.append({
             "numeros": numeros,
@@ -765,8 +765,8 @@ def analyze_grid(
         if not numeros or len(numeros) != 6:
             raise HTTPException(status_code=400, detail="Grille invalide: 6 numéros requis")
         
-        if not complementaire or not (1 <= complementaire <= 10):
-            raise HTTPException(status_code=400, detail="Complémentaire invalide: doit être entre 1 et 10")
+        if not complementaire or not (1 <= complementaire <= 45):
+            raise HTTPException(status_code=400, detail="Complémentaire invalide: doit être entre 1 et 45")
         
         # Vérifier les doublons
         if len(set(numeros)) != 6:

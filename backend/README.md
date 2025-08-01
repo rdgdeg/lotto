@@ -53,7 +53,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - `id` : Clé primaire
 - `date` : Date du tirage
 - `n1, n2, n3, n4, n5, n6` : Numéros (1-45)
-- `complementaire` : Numéro complémentaire (1-10)
+- `complementaire` : Numéro complémentaire (1-45)
 
 #### `stats`
 - `id` : Clé primaire

@@ -236,7 +236,7 @@ def generate_frequency_based_grids(draws: List, game_type: str, params: Dict) ->
             })
         else:
             grid_numbers = sorted(random.sample(selected_numbers, 6))
-            grid_complementaire = random.choice(selected_stars)
+            grid_complementaire = random.randint(1, 45)
             grids.append({
                 'numbers': grid_numbers,
                 'complementaire': grid_complementaire,
@@ -269,7 +269,7 @@ def generate_gap_based_grids(draws: List, game_type: str, params: Dict) -> List[
             })
         else:
             grid_numbers = sorted(random.sample(overdue_nums, 6))
-            grid_complementaire = random.randint(1, 10)
+            grid_complementaire = random.randint(1, 45)
             grids.append({
                 'numbers': grid_numbers,
                 'complementaire': grid_complementaire,
@@ -309,7 +309,7 @@ def generate_combination_based_grids(draws: List, game_type: str, params: Dict) 
                     'strategy': 'combination_based'
                 })
             else:
-                grid_complementaire = random.randint(1, 10)
+                grid_complementaire = random.randint(1, 45)
                 grids.append({
                     'numbers': grid_numbers,
                     'complementaire': grid_complementaire,
@@ -335,7 +335,7 @@ def generate_random_grids(draws: List, game_type: str, params: Dict) -> List[Dic
             })
         else:
             grid_numbers = sorted(random.sample(range(1, 50), 6))
-            grid_complementaire = random.randint(1, 10)
+            grid_complementaire = random.randint(1, 45)
             grids.append({
                 'numbers': grid_numbers,
                 'complementaire': grid_complementaire,

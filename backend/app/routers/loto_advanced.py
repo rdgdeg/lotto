@@ -337,7 +337,7 @@ async def generate_advanced_grid(
         import random
         
         numeros = sorted(random.sample(range(1, 46), 6))
-        complementaire = random.randint(1, 10)
+        complementaire = random.randint(1, 45)
         
         grid = {
             "numeros": numeros,

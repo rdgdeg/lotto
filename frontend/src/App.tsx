@@ -1,19 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navigation from './components/Navigation';
+import './App.css';
 import Home from './pages/Home';
-import Euromillions from './pages/Euromillions';
 import Lotto from './pages/Lotto';
+import Euromillions from './pages/Euromillions';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Navigation />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/euromillions" element={<Euromillions />} />
           <Route path="/lotto" element={<Lotto />} />
+          <Route path="/euromillions" element={<Euromillions />} />
         </Routes>
       </div>
     </Router>
