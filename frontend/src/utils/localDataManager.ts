@@ -122,11 +122,10 @@ class LocalDataManager {
     const numbers = Array.from({ length: 45 }, (_, i) => {
       const num = i + 1;
       const count = numerosFreq[num] || 0;
-      const total = Object.values(numerosFreq).reduce((a, b) => a + b, 0);
       return {
         numero: num,
         count,
-        percentage: total > 0 ? (count / total) * 100 : 0
+        percentage: draws.length > 0 ? (count / draws.length) * 100 : 0
       };
     });
 
@@ -184,22 +183,20 @@ class LocalDataManager {
     const numbers = Array.from({ length: 50 }, (_, i) => {
       const num = i + 1;
       const count = numerosFreq[num] || 0;
-      const total = Object.values(numerosFreq).reduce((a, b) => a + b, 0);
       return {
         numero: num,
         count,
-        percentage: total > 0 ? (count / total) * 100 : 0
+        percentage: draws.length > 0 ? (count / draws.length) * 100 : 0
       };
     });
 
     const starsStats = Array.from({ length: 12 }, (_, i) => {
       const num = i + 1;
       const count = etoilesFreq[num] || 0;
-      const total = Object.values(etoilesFreq).reduce((a, b) => a + b, 0);
       return {
         numero: num,
         count,
-        percentage: total > 0 ? (count / total) * 100 : 0
+        percentage: draws.length > 0 ? (count / draws.length) * 100 : 0
       };
     });
 
@@ -241,7 +238,7 @@ class LocalDataManager {
       .map(([numero, count]) => ({
         numero: parseInt(numero),
         count,
-        frequency: count / Object.values(freq).reduce((a, b) => a + b, 0)
+        frequency: count // Retourner juste le count, la fréquence sera calculée ailleurs
       }));
   }
 
@@ -252,7 +249,7 @@ class LocalDataManager {
       .map(([numero, count]) => ({
         numero: parseInt(numero),
         count,
-        frequency: count / Object.values(freq).reduce((a, b) => a + b, 0)
+        frequency: count // Retourner juste le count, la fréquence sera calculée ailleurs
       }));
   }
 
