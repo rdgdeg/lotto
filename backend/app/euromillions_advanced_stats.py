@@ -321,20 +321,24 @@ class EuromillionsAdvancedStats:
         number_count = Counter(all_numbers)
         star_count = Counter(all_stars)
         
+        # Calculer les totaux
+        total_number_occurrences = sum(number_count.values())
+        total_star_occurrences = sum(star_count.values())
+        
         # Convertir en format attendu par le frontend
-        def format_stats(items):
+        def format_stats(items, total_occurrences):
             return [
                 {
                     "numero": num,
                     "frequence": count,
-                    "pourcentage": (count / len(draws)) * 100
+                    "pourcentage": (count / total_occurrences) * 100 if total_occurrences > 0 else 0
                 } 
                 for num, count in items
             ]
         
         return {
-            "numeros": format_stats(number_count.most_common(10)),
-            "etoiles": format_stats(star_count.most_common(6)),
+            "numeros": format_stats(number_count.most_common(10), total_number_occurrences),
+            "etoiles": format_stats(star_count.most_common(6), total_star_occurrences),
             "total_draws": len(draws)
         }
     

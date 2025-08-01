@@ -84,21 +84,25 @@ class LotoAdvancedStats:
         top_complementaires = complementaires_freq.most_common(10)
         bottom_complementaires = sorted([(num, count) for num, count in complementaires_freq.items()], key=lambda x: x[1])[:10]
         
+        # Calculer les totaux
+        total_numero_occurrences = sum(numeros_freq.values())
+        total_complementaire_occurrences = sum(complementaires_freq.values())
+        
         # Convertir en format attendu par le frontend
-        def format_stats(items):
+        def format_stats(items, total_occurrences):
             return [
                 {
                     "numero": num,
                     "frequence": count,
-                    "pourcentage": (count / len(draws)) * 100
+                    "pourcentage": (count / total_occurrences) * 100 if total_occurrences > 0 else 0
                 } 
                 for num, count in items
             ]
         
         return {
             "total_draws": len(draws),
-            "numeros": format_stats(top_numeros),
-            "complementaires": format_stats(top_complementaires),
+            "numeros": format_stats(top_numeros, total_numero_occurrences),
+            "complementaires": format_stats(top_complementaires, total_complementaire_occurrences),
             "average_sum": np.mean([sum([draw.n1, draw.n2, draw.n3, draw.n4, draw.n5, draw.n6]) for draw in draws]),
             "median_sum": np.median([sum([draw.n1, draw.n2, draw.n3, draw.n4, draw.n5, draw.n6]) for draw in draws])
         }
