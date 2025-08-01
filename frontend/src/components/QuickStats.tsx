@@ -173,6 +173,60 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
               </div>
             </div>
           )}
+
+          {/* Tableau détaillé pour Euromillions */}
+          {gameType === 'euromillions' && (
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ marginBottom: '1rem', color: '#2c3e50' }}>
+                📋 Tableau détaillé des fréquences :
+              </h3>
+              <div style={{ 
+                background: '#f8f9fa', 
+                borderRadius: '8px', 
+                padding: '1rem',
+                overflowX: 'auto'
+              }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #dee2e6' }}>
+                      <th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 'bold' }}>Numéro</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 'bold' }}>Fréquence</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 'bold' }}>Pourcentage</th>
+                      <th style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 'bold' }}>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {numerosItems.slice(0, 15).map((item, index) => (
+                      <tr key={`numero-${item.numero}`} style={{ 
+                        borderBottom: '1px solid #dee2e6',
+                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa'
+                      }}>
+                        <td style={{ padding: '0.75rem', fontWeight: 'bold' }}>{item.numero}</td>
+                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>{item.frequence}</td>
+                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                          {item.pourcentage > 0 ? item.pourcentage.toFixed(1) : '0.0'}%
+                        </td>
+                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>Numéro</td>
+                      </tr>
+                    ))}
+                    {etoilesItems.slice(0, 6).map((item, index) => (
+                      <tr key={`etoile-${item.numero}`} style={{ 
+                        borderBottom: '1px solid #dee2e6',
+                        backgroundColor: '#e3f2fd'
+                      }}>
+                        <td style={{ padding: '0.75rem', fontWeight: 'bold' }}>{item.numero}</td>
+                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>{item.frequence}</td>
+                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                          {item.pourcentage > 0 ? item.pourcentage.toFixed(1) : '0.0'}%
+                        </td>
+                        <td style={{ padding: '0.75rem', textAlign: 'center' }}>Étoile</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </>
       )}
 

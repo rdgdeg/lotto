@@ -80,7 +80,25 @@ def generate_probability_grid(strategy: str = "balanced", db: Session = Depends(
             "description": f"Grille générée avec la stratégie: {strategy}"
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}")
+        # Fallback en cas d'erreur
+        try:
+            # Générer une grille aléatoire simple
+            import random
+            numbers = sorted(random.sample(range(1, 51), 5))
+            stars = sorted(random.sample(range(1, 13), 2))
+            
+            return {
+                "grid": {
+                    "numeros": numbers,
+                    "etoiles": stars,
+                    "strategy": "random_fallback",
+                    "confidence": 0.5
+                },
+                "strategy_used": "random_fallback",
+                "description": f"Grille aléatoire (fallback après erreur: {str(e)})"
+            }
+        except Exception as fallback_error:
+            raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}. Fallback échoué: {str(fallback_error)}")
 
 @router.get("/generate-multiple-grids")
 def generate_multiple_grids(num_grids: int = 5, strategy: str = "balanced", db: Session = Depends(get_db)):

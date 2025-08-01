@@ -36,8 +36,13 @@ class EuromillionsAdvancedGenerator:
     
     def _generate_frequency_based_grid(self, stats: Dict[str, Any]) -> Dict[str, Any]:
         """Génère une grille basée sur les fréquences"""
-        number_freqs = stats["basic_stats"]["number_frequencies"]
-        star_freqs = stats["basic_stats"]["star_frequencies"]
+        # Utiliser le nouveau format de données
+        numeros_data = stats.get("basic_stats", {}).get("numeros", [])
+        etoiles_data = stats.get("basic_stats", {}).get("etoiles", [])
+        
+        # Créer des dictionnaires de fréquences
+        number_freqs = {item["numero"]: item["frequence"] for item in numeros_data}
+        star_freqs = {item["numero"]: item["frequence"] for item in etoiles_data}
         
         # Créer des poids basés sur les fréquences
         number_weights = [number_freqs.get(i, 0.1) for i in range(1, 51)]
@@ -55,8 +60,8 @@ class EuromillionsAdvancedGenerator:
         stars = np.random.choice(range(1, 13), size=2, replace=False, p=star_weights)
         
         return {
-            "numbers": sorted(numbers.tolist()),
-            "stars": sorted(stars.tolist()),
+            "numeros": sorted(numbers.tolist()),
+            "etoiles": sorted(stars.tolist()),
             "strategy": "frequency",
             "confidence": self._calculate_confidence(numbers, stars, stats)
         }
@@ -68,11 +73,11 @@ class EuromillionsAdvancedGenerator:
         
         # Si pas assez de numéros chauds, compléter avec des fréquents
         if len(hot_numbers) < 5:
-            freq_numbers = [item[0] for item in stats["basic_stats"]["most_frequent_numbers"][:20]]
+            freq_numbers = [item["numero"] for item in stats["basic_stats"]["numeros"][:20]]
             hot_numbers.extend(freq_numbers)
         
         if len(hot_stars) < 2:
-            freq_stars = [item[0] for item in stats["basic_stats"]["most_frequent_stars"][:6]]
+            freq_stars = [item["numero"] for item in stats["basic_stats"]["etoiles"][:6]]
             hot_stars.extend(freq_stars)
         
         # S'assurer qu'il n'y a pas de doublons
@@ -93,8 +98,8 @@ class EuromillionsAdvancedGenerator:
             stars.extend(random.sample(remaining_stars, 2 - len(stars)))
         
         return {
-            "numbers": sorted(numbers),
-            "stars": sorted(stars),
+            "numeros": sorted(numbers),
+            "etoiles": sorted(stars),
             "strategy": "hot",
             "confidence": self._calculate_confidence(numbers, stars, stats)
         }
@@ -169,52 +174,34 @@ class EuromillionsAdvancedGenerator:
         }
     
     def _generate_balanced_grid(self, stats: Dict[str, Any]) -> Dict[str, Any]:
-        """Génère une grille équilibrée combinant plusieurs stratégies"""
-        # Combiner fréquence, patterns et analyse chaud/froid
-        number_freqs = stats["basic_stats"]["number_frequencies"]
-        star_freqs = stats["basic_stats"]["star_frequencies"]
+        """Génère une grille équilibrée"""
+        # Utiliser les données du nouveau format
+        numeros_data = stats.get("basic_stats", {}).get("numeros", [])
+        etoiles_data = stats.get("basic_stats", {}).get("etoiles", [])
         
-        # Créer des poids combinés
+        # Créer des poids basés sur les fréquences
+        number_freqs = {item["numero"]: item["frequence"] for item in numeros_data}
+        star_freqs = {item["numero"]: item["frequence"] for item in etoiles_data}
+        
+        # Créer des poids équilibrés
         number_weights = []
         for i in range(1, 51):
-            base_weight = number_freqs.get(i, 0.1)
-            
-            # Bonus pour les numéros chauds
-            hot_bonus = 1.0
-            for hot_item in stats["hot_cold_analysis"]["hot_numbers"][:10]:
-                if hot_item["number"] == i:
-                    hot_bonus = 1.5
-                    break
-            
-            # Bonus pour les combinaisons fréquentes
-            combo_bonus = 1.0
-            for combo in stats["frequent_combinations"][:20]:
-                if i in combo["numbers"]:
-                    combo_bonus = 1.2
-                    break
-            
-            final_weight = base_weight * hot_bonus * combo_bonus
-            number_weights.append(final_weight)
+            freq = number_freqs.get(i, 0.1)
+            # Équilibrer entre fréquence et hasard
+            balanced_weight = freq * 0.7 + 0.3
+            number_weights.append(balanced_weight)
+        
+        star_weights = []
+        for i in range(1, 13):
+            freq = star_freqs.get(i, 0.1)
+            balanced_weight = freq * 0.7 + 0.3
+            star_weights.append(balanced_weight)
         
         # Normaliser
         number_weights = np.array(number_weights)
-        number_weights = number_weights / number_weights.sum()
-        
-        # Même chose pour les étoiles
-        star_weights = []
-        for i in range(1, 13):
-            base_weight = star_freqs.get(i, 0.1)
-            
-            hot_bonus = 1.0
-            for hot_item in stats["hot_cold_analysis"]["hot_stars"][:5]:
-                if hot_item["star"] == i:
-                    hot_bonus = 1.5
-                    break
-            
-            final_weight = base_weight * hot_bonus
-            star_weights.append(final_weight)
-        
         star_weights = np.array(star_weights)
+        
+        number_weights = number_weights / number_weights.sum()
         star_weights = star_weights / star_weights.sum()
         
         # Tirer les numéros
@@ -222,8 +209,8 @@ class EuromillionsAdvancedGenerator:
         stars = np.random.choice(range(1, 13), size=2, replace=False, p=star_weights)
         
         return {
-            "numbers": sorted(numbers.tolist()),
-            "stars": sorted(stars.tolist()),
+            "numeros": sorted(numbers.tolist()),
+            "etoiles": sorted(stars.tolist()),
             "strategy": "balanced",
             "confidence": self._calculate_confidence(numbers, stars, stats)
         }
