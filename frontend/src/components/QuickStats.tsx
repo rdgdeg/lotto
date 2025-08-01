@@ -70,7 +70,7 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
     >
       <div className="stat-number">{item.numero}</div>
       <div className="stat-label">
-        {item.frequence} fois ({item.pourcentage.toFixed(1)}%)
+        {item.frequence} fois ({item.pourcentage > 0 ? item.pourcentage.toFixed(1) : '0.0'}%)
       </div>
     </div>
   );
@@ -82,11 +82,16 @@ const QuickStats: React.FC<QuickStatsProps> = ({ gameType }) => {
     }
     
     if (typeof data === 'object' && data !== null) {
-      return Object.entries(data).map(([numero, value]: [string, any]) => ({
-        numero: parseInt(numero),
-        frequence: typeof value === 'object' ? value.frequence || value.count || 0 : value,
-        pourcentage: typeof value === 'object' ? value.pourcentage || 0 : 0
-      })).sort((a, b) => b.frequence - a.frequence);
+      return Object.entries(data).map(([numero, value]: [string, any]) => {
+        const frequence = typeof value === 'object' ? value.frequence || value.count || 0 : value;
+        const pourcentage = typeof value === 'object' ? value.pourcentage || 0 : 0;
+        
+        return {
+          numero: parseInt(numero),
+          frequence: frequence,
+          pourcentage: pourcentage > 0 ? pourcentage : 0
+        };
+      }).sort((a, b) => b.frequence - a.frequence);
     }
     
     return [];

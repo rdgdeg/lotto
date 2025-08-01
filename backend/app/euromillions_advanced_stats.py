@@ -321,13 +321,21 @@ class EuromillionsAdvancedStats:
         number_count = Counter(all_numbers)
         star_count = Counter(all_stars)
         
+        # Convertir en format attendu par le frontend
+        def format_stats(items):
+            return [
+                {
+                    "numero": num,
+                    "frequence": count,
+                    "pourcentage": (count / len(draws)) * 100
+                } 
+                for num, count in items
+            ]
+        
         return {
-            "most_frequent_numbers": number_count.most_common(10),
-            "least_frequent_numbers": sorted(number_count.items(), key=lambda x: x[1])[:10],
-            "most_frequent_stars": star_count.most_common(5),
-            "least_frequent_stars": sorted(star_count.items(), key=lambda x: x[1])[:5],
-            "number_frequencies": dict(number_count),
-            "star_frequencies": dict(star_count)
+            "numeros": format_stats(number_count.most_common(10)),
+            "etoiles": format_stats(star_count.most_common(6)),
+            "total_draws": len(draws)
         }
     
     def _calculate_yearly_stats(self, draws: List[DrawEuromillions]) -> Dict[int, Dict]:

@@ -11,6 +11,7 @@ const DrawHistory: React.FC<DrawHistoryProps> = ({ gameType }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterYear, setFilterYear] = useState<string>('');
+  const [filterMonth, setFilterMonth] = useState<string>('');
 
   useEffect(() => {
     fetchDraws();
@@ -20,7 +21,9 @@ const DrawHistory: React.FC<DrawHistoryProps> = ({ gameType }) => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:8000/api/${gameType}/`);
-      setDraws(response.data || []);
+      // S'assurer que draws est un tableau
+      const drawsData = Array.isArray(response.data) ? response.data : response.data.draws || [];
+      setDraws(drawsData);
     } catch (err) {
       console.error('Erreur lors du chargement de l\'historique:', err);
       setError('Impossible de charger l\'historique');
@@ -43,10 +46,27 @@ const DrawHistory: React.FC<DrawHistoryProps> = ({ gameType }) => {
     const matchesYear = filterYear === '' || 
       new Date(draw.date).getFullYear().toString() === filterYear;
     
-    return matchesSearch && matchesYear;
+    const matchesMonth = filterMonth === '' || 
+      (new Date(draw.date).getMonth() + 1).toString() === filterMonth;
+    
+    return matchesSearch && matchesYear && matchesMonth;
   });
 
   const years = [...new Set(draws.map(draw => new Date(draw.date).getFullYear()))].sort((a, b) => b - a);
+  const months = [
+    { value: '1', label: 'Janvier' },
+    { value: '2', label: 'Février' },
+    { value: '3', label: 'Mars' },
+    { value: '4', label: 'Avril' },
+    { value: '5', label: 'Mai' },
+    { value: '6', label: 'Juin' },
+    { value: '7', label: 'Juillet' },
+    { value: '8', label: 'Août' },
+    { value: '9', label: 'Septembre' },
+    { value: '10', label: 'Octobre' },
+    { value: '11', label: 'Novembre' },
+    { value: '12', label: 'Décembre' }
+  ];
 
   if (loading) {
     return (
@@ -80,8 +100,8 @@ const DrawHistory: React.FC<DrawHistoryProps> = ({ gameType }) => {
 
       {/* Filtres */}
       <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <div style={{ flex: 1, minWidth: '200px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
               🔍 Rechercher un numéro :
             </label>
@@ -100,7 +120,7 @@ const DrawHistory: React.FC<DrawHistoryProps> = ({ gameType }) => {
             />
           </div>
           
-          <div style={{ minWidth: '150px' }}>
+          <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
               📅 Année :
             </label>
@@ -118,6 +138,28 @@ const DrawHistory: React.FC<DrawHistoryProps> = ({ gameType }) => {
               <option value="">Toutes les années</option>
               {years.map(year => (
                 <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              📅 Mois :
+            </label>
+            <select
+              value={filterMonth}
+              onChange={(e) => setFilterMonth(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: '1px solid #ddd',
+                fontSize: '1rem'
+              }}
+            >
+              <option value="">Tous les mois</option>
+              {months.map(month => (
+                <option key={month.value} value={month.value}>{month.label}</option>
               ))}
             </select>
           </div>
