@@ -143,7 +143,7 @@ const FileUploadWithValidation: React.FC<FileUploadWithValidationProps> = ({
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
             >
               📂 Sélectionner un fichier CSV
             </button>
@@ -165,7 +165,7 @@ const FileUploadWithValidation: React.FC<FileUploadWithValidationProps> = ({
               <button
                 onClick={validateFile}
                 disabled={isValidating}
-                className="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors disabled:opacity-50"
+                className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors disabled:opacity-50 text-sm font-medium"
               >
                 {isValidating ? '🔍 Validation...' : '🔍 Valider le fichier'}
               </button>
@@ -174,7 +174,7 @@ const FileUploadWithValidation: React.FC<FileUploadWithValidationProps> = ({
                 <button
                   onClick={uploadFile}
                   disabled={isUploading}
-                  className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 text-sm font-medium"
                 >
                   {isUploading ? '📤 Upload...' : '📤 Importer le fichier'}
                 </button>

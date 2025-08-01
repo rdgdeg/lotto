@@ -52,10 +52,10 @@ def test_unique_numbers_generation():
         print(f"✅ Grille {i+1}: {numbers} | Étoiles: {stars}")
     
     # Test Lotto
-    print("\n🍀 Test Lotto (6 numéros de 1-49, 1 chance de 1-10)")
+    print("\n🍀 Test Lotto (6 numéros de 1-45, 1 complémentaire de 1-45)")
     for i in range(10):
-        numbers = generate_unique_numbers(6, 49)
-        chance = random.randint(1, 10)
+        numbers = generate_unique_numbers(6, 45)
+        chance = random.randint(1, 45)
         
         # Vérifier les doublons
         if len(numbers) != len(set(numbers)):
@@ -64,14 +64,14 @@ def test_unique_numbers_generation():
             return False
         
         # Vérifier les plages
-        if not all(1 <= n <= 49 for n in numbers):
+        if not all(1 <= n <= 45 for n in numbers):
             print(f"❌ Grille {i+1}: Numéros hors plage!")
             print(f"   Numéros: {numbers}")
             return False
         
-        if not (1 <= chance <= 10):
-            print(f"❌ Grille {i+1}: Numéro chance hors plage!")
-            print(f"   Chance: {chance}")
+        if not (1 <= chance <= 45):
+            print(f"❌ Grille {i+1}: Numéro complémentaire hors plage!")
+            print(f"   Complémentaire: {chance}")
             return False
         
         print(f"✅ Grille {i+1}: {numbers} | Chance: {chance}")

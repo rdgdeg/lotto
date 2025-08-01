@@ -405,7 +405,7 @@ const LottoAdvancedGenerator: React.FC<LottoAdvancedGeneratorProps> = ({ onClose
                 <button
                   onClick={generateGrids}
                   disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                 >
                   {loading ? '🔄 Génération...' : generationMode === 'single' ? '🎲 Générer une Grille' : '🎲 Générer Toutes les Stratégies'}
                 </button>

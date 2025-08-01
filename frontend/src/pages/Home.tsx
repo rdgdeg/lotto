@@ -207,7 +207,7 @@ const Home: React.FC = () => {
                 <div className="relative text-center">
                   <div className="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">🍀</div>
                   <h2 className="text-3xl font-bold text-white mb-3">Lotto</h2>
-                  <p className="text-green-100 text-lg">6 numéros (1-49) + 1 numéro chance (1-10)</p>
+                  <p className="text-green-100 text-lg">6 numéros (1-45) + 1 numéro complémentaire (1-45)</p>
                 </div>
               </div>
               <div className="p-8">

@@ -121,7 +121,7 @@ const SimpleUsageGuide: React.FC<SimpleUsageGuideProps> = ({ onClose, isOpen }) 
         <div className="mt-8 text-center">
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition-colors text-sm"
           >
             J'ai compris, commençons !
           </button>

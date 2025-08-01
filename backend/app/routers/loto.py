@@ -237,9 +237,9 @@ async def import_loto_excel(
                         break
                     numeros.append(int(numero))
                 else:
-                    # Vérification des plages pour le Loto (1-49)
-                    if not all(1 <= n <= 49 for n in numeros):
-                        errors.append(f"Ligne {index + 2}: Numéros hors de la plage 1-49")
+                    # Vérification des plages pour le Loto (1-45)
+                    if not all(1 <= n <= 45 for n in numeros):
+                        errors.append(f"Ligne {index + 2}: Numéros hors de la plage 1-45")
                         continue
                     
                     if len(set(numeros)) != 6:
@@ -254,9 +254,9 @@ async def import_loto_excel(
                     
                     bonus = int(bonus)
                     
-                    # Vérification de la plage pour le bonus (1-10)
-                    if not 1 <= bonus <= 10:
-                        errors.append(f"Ligne {index + 2}: Bonus hors de la plage 1-10")
+                    # Vérification de la plage pour le bonus (1-45)
+                    if not 1 <= bonus <= 45:
+                        errors.append(f"Ligne {index + 2}: Bonus hors de la plage 1-45")
                         continue
                     
                     # Création du tirage

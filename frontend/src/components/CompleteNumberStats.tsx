@@ -341,7 +341,7 @@ const CompleteNumberStats: React.FC<CompleteNumberStatsProps> = ({
         {/* Numéros principaux */}
         <div className="mb-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            🎯 Numéros Principaux ({gameType === 'euromillions' ? '1-50' : '1-49'})
+            🎯 Numéros Principaux ({gameType === 'euromillions' ? '1-50' : '1-45'})
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {paginatedNumbers.map((stat) => (

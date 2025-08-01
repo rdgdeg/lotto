@@ -9,7 +9,18 @@ SUPABASE_ANON_KEY = settings.SUPABASE_ANON_KEY
 SUPABASE_SECRET_KEY = settings.SUPABASE_SECRET_KEY
 
 # Créer le client Supabase (approche principale)
-supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+try:
+    if SUPABASE_URL and SUPABASE_ANON_KEY:
+        supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+        SUPABASE_AVAILABLE = True
+    else:
+        print("⚠️ Variables Supabase non configurées, utilisation de SQLite uniquement")
+        supabase = None
+        SUPABASE_AVAILABLE = False
+except Exception as e:
+    print(f"❌ Erreur de connexion Supabase: {e}")
+    supabase = None
+    SUPABASE_AVAILABLE = False
 
 # URL de connexion depuis la configuration
 DATABASE_URL = settings.DATABASE_URL
@@ -34,6 +45,9 @@ def get_db():
             yield db
         finally:
             db.close()
-    else:
+    elif SUPABASE_AVAILABLE and supabase:
         # Fallback vers Supabase client
-        yield supabase 
+        yield supabase
+    else:
+        # Fallback vers une session vide
+        yield None 

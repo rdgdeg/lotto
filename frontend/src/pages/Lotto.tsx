@@ -4,6 +4,7 @@ import GridDisplay from '../components/GridDisplay';
 import GridAnalysis from '../components/GridAnalysis';
 import DetailedStatsVisualization from '../components/DetailedStatsVisualization';
 import CompleteNumberStats from '../components/CompleteNumberStats';
+import AdvancedStats from '../components/AdvancedStats';
 import DetailedNumberStats from '../components/DetailedNumberStats';
 import NumberStatisticsPage from '../components/NumberStatisticsPage';
 import AnnualStatistics from '../components/AnnualStatistics';
@@ -18,10 +19,11 @@ import StatisticsUpdateNotification from '../components/StatisticsUpdateNotifica
 import FileUploadWithValidation from '../components/FileUploadWithValidation';
 import MultipleFileUpload from '../components/MultipleFileUpload';
 import QuickNumberStats from '../components/QuickNumberStats';
-import LottoAdvancedGenerator from '../components/LottoAdvancedGenerator';
+import AdvancedGenerator from '../components/AdvancedGenerator';
 import MainContent from '../components/MainContent';
 import DataExport from '../components/DataExport';
 import DataDiagnostic from '../components/DataDiagnostic';
+import ActionBar from '../components/ActionBar';
 
 const Lotto: React.FC = () => {
   const [grids, setGrids] = useState<number[][]>([]);
@@ -40,6 +42,7 @@ const Lotto: React.FC = () => {
   const [showDataExport, setShowDataExport] = useState<boolean>(false);
   const [showDataDiagnostic, setShowDataDiagnostic] = useState<boolean>(false);
   const [showAdvancedGenerator, setShowAdvancedGenerator] = useState<boolean>(false);
+  const [showAdvancedStats, setShowAdvancedStats] = useState<boolean>(false);
   const [notification, setNotification] = useState<{
     isVisible: boolean;
     message: string;
@@ -110,7 +113,48 @@ const Lotto: React.FC = () => {
     setOpenedModal(null);
   };
 
-
+  const handleAction = (action: string) => {
+    switch (action) {
+      case 'guide':
+        setOpenedModal('help');
+        break;
+      case 'usage':
+        setOpenedModal('usageGuide');
+        break;
+      case 'quickStats':
+        setOpenedModal('quickStats');
+        break;
+      case 'advancedGenerator':
+        setShowAdvancedGenerator(true);
+        break;
+      case 'advancedStats':
+        setShowAdvancedStats(true);
+        break;
+      case 'history':
+        setOpenedModal('completeHistory');
+        break;
+      case 'dailyInput':
+        setOpenedModal('dailyInput');
+        break;
+      case 'fileUpload':
+        setShowFileUpload(true);
+        break;
+      case 'multipleUpload':
+        setShowMultipleFileUpload(true);
+        break;
+      case 'dataExport':
+        setShowDataExport(true);
+        break;
+      case 'diagnostic':
+        setShowDataDiagnostic(true);
+        break;
+      case 'help':
+        setOpenedModal('help');
+        break;
+      default:
+        console.log('Action non reconnue:', action);
+    }
+  };
 
   return (
     <MainContent>
@@ -126,88 +170,8 @@ const Lotto: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation simplifiée */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => setOpenedModal('help')}
-              className="btn-lotto text-base px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
-            >
-              🎯 Guide Simple - Tout en un
-            </button>
-            
-            <div className="flex gap-2">
-              <button
-                onClick={() => setOpenedModal('usageGuide')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-sm px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-              >
-                📖 Comment utiliser ?
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('quickStats')}
-                className="btn-lotto whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                📊 Stats Rapides
-              </button>
-              
-              <button
-                onClick={() => setShowAdvancedGenerator(true)}
-                className="btn-lotto whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white"
-              >
-                🎰 Générateur Avancé
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('completeHistory')}
-                className="btn-lotto whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                📅 Historique
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('help')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                ❓ Aide
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('dailyInput')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white"
-              >
-                ✏️ Ajout Quotidien
-              </button>
-              
-              <button
-                onClick={() => setShowFileUpload(true)}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white"
-              >
-                📁 Upload Fichier
-              </button>
-              
-              <button
-                onClick={() => setShowMultipleFileUpload(true)}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white"
-              >
-                📚 Upload Multiple
-              </button>
-              
-              <button
-                onClick={() => setShowDataExport(true)}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                📥 Export Données
-              </button>
-              <button
-                onClick={() => setShowDataDiagnostic(true)}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-red-500 hover:bg-red-600 text-white"
-              >
-                🔍 Diagnostic
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Barre d'actions unifiée */}
+        <ActionBar gameType="lotto" onAction={handleAction} />
       </div>
 
       {/* Contenu principal */}
@@ -425,9 +389,18 @@ const Lotto: React.FC = () => {
       )}
 
       {showAdvancedGenerator && (
-        <LottoAdvancedGenerator
+        <AdvancedGenerator
+          gameType="lotto"
           onClose={() => setShowAdvancedGenerator(false)}
           isOpen={showAdvancedGenerator}
+        />
+      )}
+
+      {showAdvancedStats && (
+        <AdvancedStats
+          gameType="lotto"
+          onClose={() => setShowAdvancedStats(false)}
+          isOpen={showAdvancedStats}
         />
       )}
 

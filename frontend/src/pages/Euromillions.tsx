@@ -12,8 +12,8 @@ import ManualDrawInput from '../components/ManualDrawInput';
 import ImportCSV from '../components/ImportCSV';
 import DataManagement from '../components/DataManagement';
 import UnifiedHelpGuide from '../components/UnifiedHelpGuide';
-import EuromillionsAdvancedStats from '../components/EuromillionsAdvancedStats';
-import EuromillionsAdvancedGenerator from '../components/EuromillionsAdvancedGenerator';
+import AdvancedStats from '../components/AdvancedStats';
+import AdvancedGenerator from '../components/AdvancedGenerator';
 import SimplifiedEuromillionsDashboard from '../components/SimplifiedEuromillionsDashboard';
 import SimpleUsageGuide from '../components/SimpleUsageGuide';
 import DailyDrawInput from '../components/DailyDrawInput';
@@ -22,6 +22,7 @@ import FileUploadWithValidation from '../components/FileUploadWithValidation';
 import QuickNumberStats from '../components/QuickNumberStats';
 import MainContent from '../components/MainContent';
 import DataDiagnostic from '../components/DataDiagnostic';
+import ActionBar from '../components/ActionBar';
 
 const Euromillions: React.FC = () => {
   const [grids, setGrids] = useState<number[][]>([]);
@@ -78,6 +79,51 @@ const Euromillions: React.FC = () => {
     setOpenedModal(null);
   };
 
+  const handleAction = (action: string) => {
+    switch (action) {
+      case 'guide':
+        setOpenedModal('simplifiedDashboard');
+        break;
+      case 'usage':
+        setOpenedModal('usageGuide');
+        break;
+      case 'quickStats':
+        setOpenedModal('quickStats');
+        break;
+      case 'advancedGenerator':
+        setOpenedModal('advancedGenerator');
+        break;
+      case 'advancedStats':
+        setOpenedModal('advancedStats');
+        break;
+      case 'history':
+        setOpenedModal('drawHistory');
+        break;
+      case 'dailyInput':
+        setOpenedModal('dailyInput');
+        break;
+      case 'fileUpload':
+        setShowFileUpload(true);
+        break;
+      case 'multipleUpload':
+        // Pas d'action multiple upload pour Euromillions pour l'instant
+        console.log('Upload multiple non disponible pour Euromillions');
+        break;
+      case 'dataExport':
+        // Pas d'action export pour Euromillions pour l'instant
+        console.log('Export non disponible pour Euromillions');
+        break;
+      case 'diagnostic':
+        setShowDataDiagnostic(true);
+        break;
+      case 'help':
+        setOpenedModal('help');
+        break;
+      default:
+        console.log('Action non reconnue:', action);
+    }
+  };
+
   return (
     <MainContent>
       {/* Page Header */}
@@ -92,81 +138,8 @@ const Euromillions: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation simplifiée */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => setOpenedModal('simplifiedDashboard')}
-              className="btn-euromillions text-base px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
-            >
-              🎯 Guide Simple - Tout en un
-            </button>
-            
-            <div className="flex gap-2">
-              <button
-                onClick={() => setOpenedModal('usageGuide')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-sm px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-              >
-                📖 Comment utiliser ?
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('advancedStats')}
-                className="btn-euromillions whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                📊 Expert
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('advancedGenerator')}
-                className="btn-euromillions whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                ⚡ Générateur
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('help')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                ❓ Aide
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('drawHistory')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2"
-              >
-                📅 Historique
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('quickStats')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white"
-              >
-                📊 Stats Rapides
-              </button>
-              
-              <button
-                onClick={() => setOpenedModal('dailyInput')}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white"
-              >
-                ✏️ Ajout Quotidien
-              </button>
-              
-              <button
-                onClick={() => setShowFileUpload(true)}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white"
-              >
-                📁 Upload Fichier
-              </button>
-              <button
-                onClick={() => setShowDataDiagnostic(true)}
-                className="btn-info whitespace-nowrap flex-shrink-0 text-xs px-3 py-2 bg-red-500 hover:bg-red-600 text-white"
-              >
-                🔍 Diagnostic
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Barre d'actions unifiée */}
+        <ActionBar gameType="euromillions" onAction={handleAction} />
       </div>
 
       {/* Contenu principal */}
@@ -256,14 +229,16 @@ const Euromillions: React.FC = () => {
       )}
       
       {openedModal === 'advancedStats' && (
-        <EuromillionsAdvancedStats 
+        <AdvancedStats 
+          gameType="euromillions"
           onClose={() => setOpenedModal(null)}
           isOpen={openedModal === 'advancedStats'}
         />
       )}
       
       {openedModal === 'advancedGenerator' && (
-        <EuromillionsAdvancedGenerator 
+        <AdvancedGenerator 
+          gameType="euromillions"
           onClose={() => setOpenedModal(null)}
           isOpen={openedModal === 'advancedGenerator'}
         />

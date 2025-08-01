@@ -129,7 +129,7 @@ const EuromillionsAdvancedGenerator: React.FC<EuromillionsAdvancedGeneratorProps
                 <select
                   value={selectedStrategy}
                   onChange={(e) => setSelectedStrategy(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   {strategies.map(strategy => (
                     <option key={strategy.name} value={strategy.name}>
@@ -157,7 +157,7 @@ const EuromillionsAdvancedGenerator: React.FC<EuromillionsAdvancedGeneratorProps
                   max="20"
                   value={numGrids}
                   onChange={(e) => setNumGrids(parseInt(e.target.value) || 1)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
 
@@ -166,7 +166,7 @@ const EuromillionsAdvancedGenerator: React.FC<EuromillionsAdvancedGeneratorProps
                 <button
                   onClick={generateGrids}
                   disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                 >
                   {loading ? 'Génération...' : 'Générer les Grilles'}
                 </button>
@@ -203,7 +203,7 @@ const EuromillionsAdvancedGenerator: React.FC<EuromillionsAdvancedGeneratorProps
                         {grid.numbers.map((num, i) => (
                           <span
                             key={i}
-                            className="inline-block w-8 h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-sm font-semibold"
+                            className="inline-block w-7 h-7 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-xs font-semibold"
                           >
                             {num}
                           </span>
@@ -253,7 +253,7 @@ const EuromillionsAdvancedGenerator: React.FC<EuromillionsAdvancedGeneratorProps
                   value={customGrid.numbers}
                   onChange={(e) => setCustomGrid({ ...customGrid, numbers: e.target.value })}
                   placeholder="1, 15, 23, 34, 47"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
               
@@ -266,14 +266,14 @@ const EuromillionsAdvancedGenerator: React.FC<EuromillionsAdvancedGeneratorProps
                   value={customGrid.stars}
                   onChange={(e) => setCustomGrid({ ...customGrid, stars: e.target.value })}
                   placeholder="3, 8"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
             </div>
             
             <button
               onClick={analyzeCustomGrid}
-              className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors"
+              className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
             >
               Analyser la Grille
             </button>
