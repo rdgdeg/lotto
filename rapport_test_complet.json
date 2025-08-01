@@ -1,0 +1,34 @@
+{
+  "total_tests": 31,
+  "successful_tests": 31,
+  "failed_tests": 0,
+  "success_rate": 100.0,
+  "endpoint_types": {
+    "Loto": {
+      "total": 15,
+      "success": 15,
+      "failed": 0
+    },
+    "Euromillions": {
+      "total": 11,
+      "success": 11,
+      "failed": 0
+    },
+    "Commun": {
+      "total": 2,
+      "success": 2,
+      "failed": 0
+    },
+    "Historique": {
+      "total": 2,
+      "success": 2,
+      "failed": 0
+    },
+    "Import": {
+      "total": 1,
+      "success": 1,
+      "failed": 0
+    }
+  },
+  "failed_endpoints": []
+}

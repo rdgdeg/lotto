@@ -28,6 +28,11 @@ async def get_euromillions_draws(db: Session = Depends(get_db)):
     draws = db.query(DrawEuromillions).order_by(DrawEuromillions.date.desc()).all()
     return {"draws": draws}
 
+@router.get("/draws")
+async def get_euromillions_draws_alias(db: Session = Depends(get_db)):
+    """Alias pour /draws - redirige vers l'endpoint principal"""
+    return await get_euromillions_draws(db)
+
 @router.post("/import")
 async def import_euromillions_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Importer des tirages Euromillions depuis un fichier CSV"""
@@ -670,15 +675,10 @@ async def generate_euromillions_grids(
     """Générer des grilles Euromillions"""
     from ..models import DrawEuromillions
     
-    draws = db.query(DrawEuromillions).all()
-    
-    if not draws:
-        raise HTTPException(status_code=404, detail="Aucun tirage trouvé pour la génération")
-    
     # Logique de génération basique
     grids = []
     for i in range(num_grids):
-        # Pour l'instant, génération aléatoire simple
+        # Génération aléatoire simple
         import random
         numeros = sorted(random.sample(range(1, 51), 5))
         etoiles = sorted(random.sample(range(1, 13), 2))
@@ -689,7 +689,33 @@ async def generate_euromillions_grids(
             "type": "generated"
         })
     
-    return {"grids": grids} 
+    return {"grids": grids}
+
+@router.post("/generate")
+async def generate_euromillions_grids_post(
+    num_grids: int = 3,
+    strategy: str = "random",
+    db: Session = Depends(get_db)
+):
+    """Générer des grilles Euromillions via POST"""
+    from ..models import DrawEuromillions
+    
+    # Logique de génération basique
+    grids = []
+    for i in range(num_grids):
+        # Génération aléatoire simple
+        import random
+        numeros = sorted(random.sample(range(1, 51), 5))
+        etoiles = sorted(random.sample(range(1, 13), 2))
+        
+        grids.append({
+            "numeros": numeros,
+            "etoiles": etoiles,
+            "type": "generated",
+            "strategy": strategy
+        })
+    
+    return {"grids": grids}
 
 @router.post("/analyze-grid")
 def analyze_grid(

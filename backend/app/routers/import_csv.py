@@ -99,9 +99,87 @@ def get_imported_stats(jeu: str, db: Session = Depends(get_db)):
     stats = get_stats(db, jeu)
     return {
         "jeu": jeu,
-        "count": len(stats),
         "stats": stats
     }
+
+@router.post("/validate")
+async def validate_import(
+    file: UploadFile = File(...),
+    type: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Valider un fichier CSV avant import"""
+    try:
+        # Validation du type de fichier
+        if not file.filename.endswith('.csv'):
+            return {
+                "valid": False,
+                "errors": ["Le fichier doit être un CSV"],
+                "warnings": [],
+                "summary": "Fichier invalide"
+            }
+        
+        # Validation du type
+        if type not in ["euromillions", "loto", "stats"]:
+            return {
+                "valid": False,
+                "errors": ["Type doit être 'euromillions', 'loto' ou 'stats'"],
+                "warnings": [],
+                "summary": "Type invalide"
+            }
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp:
+            content = await file.read()
+            tmp.write(content)
+            tmp_path = tmp.name
+        
+        try:
+            if type == "euromillions":
+                draws = parse_euromillions_csv(tmp_path)
+                return {
+                    "valid": True,
+                    "errors": [],
+                    "warnings": [],
+                    "summary": f"Fichier Euromillions valide: {len(draws)} tirages trouvés",
+                    "count": len(draws),
+                    "type": "euromillions"
+                }
+            elif type == "loto":
+                draws = parse_loto_csv(tmp_path)
+                return {
+                    "valid": True,
+                    "errors": [],
+                    "warnings": [],
+                    "summary": f"Fichier Loto valide: {len(draws)} tirages trouvés",
+                    "count": len(draws),
+                    "type": "loto"
+                }
+            elif type == "stats":
+                return {
+                    "valid": True,
+                    "errors": [],
+                    "warnings": ["Validation des stats nécessite le paramètre 'jeu'"],
+                    "summary": "Fichier stats détecté",
+                    "type": "stats"
+                }
+        except Exception as parse_error:
+            return {
+                "valid": False,
+                "errors": [f"Erreur de parsing: {str(parse_error)}"],
+                "warnings": [],
+                "summary": "Fichier invalide"
+            }
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
+                
+    except Exception as e:
+        return {
+            "valid": False,
+            "errors": [f"Erreur générale: {str(e)}"],
+            "warnings": [],
+            "summary": "Erreur de validation"
+        }
 
 @router.delete("/clear/{game_type}")
 def clear_imported_data(game_type: str, db: Session = Depends(get_db)):

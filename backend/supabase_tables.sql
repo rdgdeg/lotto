@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS draws_loto (
     n4 INTEGER NOT NULL CHECK (n4 >= 1 AND n4 <= 45),
     n5 INTEGER NOT NULL CHECK (n5 >= 1 AND n5 <= 45),
     n6 INTEGER NOT NULL CHECK (n6 >= 1 AND n6 <= 45),
-    complementaire INTEGER NOT NULL CHECK (complementaire >= 1 AND complementaire <= 45),
+    complementaire INTEGER NOT NULL CHECK (complementaire >= 1 AND complementaire <= 10),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

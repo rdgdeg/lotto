@@ -41,9 +41,13 @@ const AdvancedGenerator: React.FC<AdvancedGeneratorProps> = ({ gameType, onClose
         : '/api/euromillions/advanced/strategies';
       
       const response = await axios.get(`http://localhost:8000${endpoint}`);
-      setStrategies(response.data);
-      if (response.data.length > 0) {
-        setSelectedStrategy(response.data[0].id);
+      
+      // Gérer les deux formats possibles de réponse
+      const strategiesData = response.data.strategies || response.data;
+      setStrategies(strategiesData);
+      
+      if (strategiesData.length > 0) {
+        setSelectedStrategy(strategiesData[0].id || strategiesData[0].name);
       }
     } catch (err) {
       console.error('Erreur lors du chargement des stratégies:', err);
@@ -61,15 +65,19 @@ const AdvancedGenerator: React.FC<AdvancedGeneratorProps> = ({ gameType, onClose
       setError('');
       
       const endpoint = isLotto 
-        ? '/api/loto/advanced/generate'
-        : '/api/euromillions/advanced/generate';
+        ? '/api/loto/advanced/generate-grid'
+        : '/api/euromillions/advanced/generate-grid';
       
-      const response = await axios.post(`http://localhost:8000${endpoint}`, {
-        strategy: selectedStrategy,
-        count: 5
-      });
+      const response = await axios.get(`http://localhost:8000${endpoint}?strategy=${selectedStrategy}`);
       
-      setGeneratedGrids(response.data.grids);
+      // Adapter le format de réponse
+      if (response.data.grid) {
+        setGeneratedGrids([response.data.grid]);
+      } else if (response.data.grids) {
+        setGeneratedGrids(response.data.grids);
+      } else {
+        setGeneratedGrids([response.data]);
+      }
     } catch (err) {
       console.error('Erreur lors de la génération:', err);
       setError('Erreur lors de la génération des grilles');

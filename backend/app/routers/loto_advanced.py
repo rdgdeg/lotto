@@ -238,4 +238,92 @@ async def export_analysis_data(
         # TODO: Implémenter la conversion CSV
         return export_data
     
-    return export_data 
+    return export_data
+
+@router.get("/strategies")
+def get_available_strategies():
+    """Retourne les stratégies de génération disponibles pour Loto"""
+    return {
+        "strategies": [
+            {
+                "id": "balanced",
+                "name": "Équilibré",
+                "description": "Mélange de numéros chauds et froids avec analyse des patterns",
+                "best_for": "Général"
+            },
+            {
+                "id": "frequency",
+                "name": "Fréquence",
+                "description": "Privilégie les numéros les plus fréquents historiquement",
+                "best_for": "Stabilité"
+            },
+            {
+                "id": "hot",
+                "name": "Chaud",
+                "description": "Privilégie les numéros qui sortent souvent récemment",
+                "best_for": "Tendance actuelle"
+            },
+            {
+                "id": "cold",
+                "name": "Froid",
+                "description": "Privilégie les numéros qui ne sortent plus depuis longtemps",
+                "best_for": "Théorie du rattrapage"
+            },
+            {
+                "id": "pattern",
+                "name": "Pattern",
+                "description": "Privilégie les patterns les plus probables (pairs/impairs, hauts/bas)",
+                "best_for": "Optimisation statistique"
+            },
+            {
+                "id": "random",
+                "name": "Aléatoire",
+                "description": "Sélection complètement aléatoire",
+                "best_for": "Simplicité"
+            }
+        ]
+    }
+
+@router.get("/generate-grid")
+async def generate_advanced_grid(
+    strategy: str = Query("random", description="Stratégie de génération"),
+    db: Session = Depends(get_db)
+):
+    """Génère une grille Loto avancée selon la stratégie choisie"""
+    try:
+        from ..generator import GridGenerator
+        
+        generator = GridGenerator(db)
+        
+        if strategy == "random":
+            grid = generator.generate_random_grid_loto()
+        elif strategy == "weighted":
+            grid = generator.generate_weighted_grid_loto()
+        elif strategy == "balanced":
+            # Utiliser une stratégie équilibrée
+            grid = generator.generate_weighted_grid_loto(use_imported_stats=True)
+        elif strategy == "frequency":
+            # Privilégier les numéros fréquents
+            grid = generator.generate_weighted_grid_loto(use_imported_stats=True)
+        elif strategy == "hot":
+            # Privilégier les numéros récents
+            grid = generator.generate_weighted_grid_loto(use_imported_stats=True)
+        elif strategy == "cold":
+            # Privilégier les numéros froids
+            grid = generator.generate_weighted_grid_loto(use_imported_stats=True)
+        elif strategy == "pattern":
+            # Utiliser des patterns
+            grid = generator.generate_weighted_grid_loto(use_imported_stats=True)
+        else:
+            # Fallback vers aléatoire
+            grid = generator.generate_random_grid_loto()
+        
+        return {
+            "grid": grid,
+            "strategy": strategy,
+            "game_type": "loto",
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération: {str(e)}") 

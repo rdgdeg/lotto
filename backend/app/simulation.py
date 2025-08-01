@@ -117,7 +117,7 @@ class MonteCarloSimulator:
         # Normaliser les fréquences
         total_draws = len(draws)
         numeros_weights = [numeros_freq.get(i, 1) / total_draws for i in range(1, 46)]
-        complementaires_weights = [complementaires_freq.get(i, 1) / total_draws for i in range(1, 46)]
+        complementaires_weights = [complementaires_freq.get(i, 1) / total_draws for i in range(1, 11)]
         
         # Normaliser
         numeros_weights = np.array(numeros_weights)
@@ -147,7 +147,7 @@ class MonteCarloSimulator:
             for _ in range(num_simulations):
                 # Simuler un tirage
                 drawn_numeros = np.random.choice(range(1, 46), size=6, replace=False, p=numeros_weights)
-                drawn_complementaire = np.random.choice(range(1, 46), size=1, p=complementaires_weights)[0]
+                drawn_complementaire = np.random.choice(range(1, 11), size=1, p=complementaires_weights)[0]
                 
                 # Compter les correspondances
                 numeros_matches = len(set(grid["numeros"]) & set(drawn_numeros))

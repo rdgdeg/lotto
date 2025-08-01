@@ -74,6 +74,19 @@ async def get_loto_draws(
         }
     }
 
+@router.get("/draws")
+async def get_loto_draws_alias(
+    limit: int = Query(100, description="Nombre de tirages à récupérer"),
+    offset: int = Query(0, description="Offset pour la pagination"),
+    sort_by: str = Query('date', description="Tri par: 'date' ou 'id'"),
+    sort_order: str = Query('desc', description="Ordre: 'asc' ou 'desc'"),
+    year: Optional[int] = Query(None, description="Filtrer par année"),
+    month: Optional[int] = Query(None, description="Filtrer par mois"),
+    db: Session = Depends(get_db)
+):
+    """Alias pour /draws - redirige vers l'endpoint principal"""
+    return await get_loto_draws(limit, offset, sort_by, sort_order, year, month, db)
+
 @router.post("/import")
 async def import_loto_csv(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Importer des tirages Loto depuis un fichier CSV"""
@@ -346,8 +359,8 @@ async def add_single_draw(draw: DrawLotoCreate, db: Session = Depends(get_db)):
             if not 1 <= numero <= 45:
                 raise HTTPException(status_code=400, detail=f"Numéro {numero} hors de la plage 1-45")
         
-        if not 1 <= draw.complementaire <= 45:
-            raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-45")
+        if not (1 <= draw.complementaire <= 10):
+            raise HTTPException(status_code=400, detail=f"Numéro complémentaire {draw.complementaire} hors de la plage 1-10")
         
         # Vérification que le numéro complémentaire n'est pas dans les numéros principaux
         if draw.complementaire in draw.numeros:
@@ -528,6 +541,32 @@ async def generate_loto_grids(
             "numeros": numeros,
             "complementaire": complementaire,
             "type": "generated"
+        })
+    
+    return {"grids": grids}
+
+@router.post("/generate")
+async def generate_loto_grids_post(
+    num_grids: int = 3,
+    strategy: str = "random",
+    db: Session = Depends(get_db)
+):
+    """Générer des grilles Loto via POST"""
+    from app.models import DrawLoto
+    
+    # Logique de génération basique
+    grids = []
+    for i in range(num_grids):
+        # Génération aléatoire simple (fonctionne même sans données existantes)
+        import random
+        numeros = sorted(random.sample(range(1, 46), 6))
+        complementaire = random.randint(1, 10)
+        
+        grids.append({
+            "numeros": numeros,
+            "complementaire": complementaire,
+            "type": "generated",
+            "strategy": strategy
         })
     
     return {"grids": grids}

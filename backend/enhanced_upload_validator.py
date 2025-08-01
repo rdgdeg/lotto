@@ -255,8 +255,8 @@ class EnhancedUploadValidator:
         try:
             complementaire = int(row[complementaire_key])
             # Le numéro bonus du Lotto est tiré dans la plage 1-45
-            if complementaire < 1 or complementaire > 45:
-                result['errors'].append(f"Ligne {row_number}: {complementaire_key} doit être entre 1 et 45 (valeur: {complementaire})")
+            if complementaire < 1 or complementaire > 10:
+                result['errors'].append(f"Ligne {row_number}: {complementaire_key} doit être entre 1 et 10 (valeur: {complementaire})")
                 result['valid'] = False
         except (ValueError, TypeError):
             result['errors'].append(f"Ligne {row_number}: {complementaire_key} invalide")

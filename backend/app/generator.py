@@ -85,7 +85,7 @@ class GridGenerator:
         numeros = np.random.choice(range(1, 46), size=6, replace=False, p=numeros_weights)
         
         # Tirer 1 complémentaire
-        complementaire = np.random.choice(range(1, 46), size=1, p=complementaire_weights)[0]
+        complementaire = np.random.choice(range(1, 11), size=1, p=complementaire_weights)[0]
         
         return {
             "numeros": sorted(numeros.tolist()),
@@ -134,13 +134,13 @@ class GridGenerator:
         
         for i in range(num_grids):
             available_numeros = list(set(range(1, 46)) - used_numeros)
-            available_complementaires = list(set(range(1, 46)) - used_complementaires)
+            available_complementaires = list(set(range(1, 11)) - used_complementaires)
             
             if len(available_numeros) < 6:
                 available_numeros = list(range(1, 46))
             
             if len(available_complementaires) < 1:
-                available_complementaires = list(range(1, 46))
+                available_complementaires = list(range(1, 11))
             
             numeros = sorted(random.sample(available_numeros, 6))
             complementaire = random.choice(available_complementaires)
@@ -170,7 +170,7 @@ class GridGenerator:
     def generate_random_grid_loto(self) -> Dict:
         """Génère une grille Loto aléatoire"""
         numeros = sorted(random.sample(range(1, 46), 6))
-        complementaire = random.randint(1, 45)
+        complementaire = random.randint(1, 10)
         
         return {
             "numeros": numeros,

@@ -40,7 +40,7 @@ def create_test_data():
             if current_date.weekday() in [0, 3, 6]:  # Lundi, Jeudi, Dimanche
                 # Générer des numéros aléatoires mais réalistes
                 numeros = sorted(random.sample(range(1, 46), 6))
-                complementaire = random.randint(1, 45)
+                complementaire = random.randint(1, 10)
                 
                 # Créer le tirage
                 draw = DrawLoto(

@@ -38,8 +38,8 @@ const AdvancedStats: React.FC<AdvancedStatsProps> = ({ gameType, onClose, isOpen
       setError('');
       
       const endpoint = isLotto 
-        ? '/api/loto/advanced/stats'
-        : '/api/euromillions/advanced/stats';
+        ? '/api/loto/advanced/comprehensive-stats'
+        : '/api/euromillions/advanced/comprehensive-stats';
       
       const response = await axios.get(`http://localhost:8000${endpoint}`);
       setStats(response.data);
